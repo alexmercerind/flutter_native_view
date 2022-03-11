@@ -17,7 +17,9 @@
 ///
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_view/flutter_native_view.dart';
+
+import 'package:flutter_native_view/src/value_notifiers.dart';
+import 'package:flutter_native_view/src/native_view_controller.dart';
 
 class _PaintRemover extends CustomPainter {
   const _PaintRemover();
@@ -37,10 +39,12 @@ class _PaintRemover extends CustomPainter {
 }
 
 class NativeView extends StatefulWidget {
+  final NativeViewController controller;
   final double width;
   final double height;
   const NativeView({
     Key? key,
+    required this.controller,
     required this.width,
     required this.height,
   }) : super(key: key);
@@ -50,17 +54,57 @@ class NativeView extends StatefulWidget {
 }
 
 class _NativeViewState extends State<NativeView> {
+  bool initialized = false;
+  GlobalKey key = GlobalKey();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      await widget.controller.createNativeView(key.rect!);
+      setState(() {
+        initialized = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return initializationType == 0
-        ? CustomPaint(
-            painter: const _PaintRemover(),
-            size: Size(widget.width, widget.height),
-          )
-        : Container(
-            color: layeredColor,
-            width: widget.width,
-            height: widget.height,
-          );
+    return ValueListenableBuilder<int>(
+      key: key,
+      valueListenable: initializationTypeNotifier,
+      builder: (context, initializationType, _) =>
+          ValueListenableBuilder<Color>(
+        valueListenable: layeredColorNotifier,
+        builder: (context, layeredColor, _) => initialized
+            ? initializationType == 0
+                ? CustomPaint(
+                    painter: const _PaintRemover(),
+                    size: Size(widget.width, widget.height),
+                  )
+                : Container(
+                    color: layeredColor,
+                    width: widget.width,
+                    height: widget.height,
+                  )
+            : Container(
+                color: Colors.transparent,
+                width: widget.width,
+                height: widget.height,
+              ),
+      ),
+    );
+  }
+}
+
+extension GlobalKeyExtension on GlobalKey {
+  Rect? get rect {
+    final renderObject = currentContext?.findRenderObject();
+    final translation = renderObject?.getTransformTo(null).getTranslation();
+    if (translation != null && renderObject?.paintBounds != null) {
+      final offset = Offset(translation.x, translation.y);
+      return renderObject!.paintBounds.shift(offset);
+    } else {
+      return null;
+    }
   }
 }

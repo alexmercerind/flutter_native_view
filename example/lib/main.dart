@@ -1,6 +1,9 @@
+import 'dart:ffi';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_native_view/flutter_native_view.dart';
+import 'package:win32/win32.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +19,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final controller = NativeViewController(
+    windowHandle: FindWindow(
+      'Notepad'.toNativeUtf16(),
+      nullptr,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,8 +33,9 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: const Center(
+        body: Center(
           child: NativeView(
+            controller: controller,
             width: 640.0,
             height: 480.0,
           ),

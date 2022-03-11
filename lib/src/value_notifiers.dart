@@ -15,42 +15,17 @@
 /// You should have received a copy of the GNU General Public License along with
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
-
 import 'package:flutter/widgets.dart';
-
-import 'package:flutter_native_view/src/channel.dart';
 import 'package:flutter_native_view/src/constants.dart';
-import 'package:flutter_native_view/src/value_notifiers.dart';
 
-class FlutterNativeView {
-  static Future<void> ensureInitialized({
-    Color layeredColor = kDefaultLayeredColor,
-  }) async {
-    initializationTypeNotifier.value = await channel.invokeMethod(
-      kEnsureInitialized,
-      {
-        'layered_color': {
-          'R': layeredColor.red,
-          'G': layeredColor.green,
-          'B': layeredColor.blue,
-        },
-      },
-    );
-  }
+/// Keeps the initialization techinique used by the plugin to create the punch hole in the window.
+/// * `0` refers to the undocumented `SetWindowCompositionAttribute` method to achieve transparency.
+/// * `1` refers to the older `WS_EX_LAYERED` and `SetLayeredWindowAttributes` setup to mask the [layeredColor].
+final ValueNotifier<int> initializationTypeNotifier =
+    ValueNotifier(kDefaultInitializationType);
 
-  static Future<void> updateLayeredColor({
-    Color layeredColor = kDefaultLayeredColor,
-  }) async {
-    layeredColorNotifier.value = layeredColor;
-    await channel.invokeMethod(
-      kUpdateLayeredColor,
-      {
-        'layered_color': {
-          'R': layeredColor.red,
-          'G': layeredColor.green,
-          'B': layeredColor.blue,
-        },
-      },
-    );
-  }
-}
+/// [layeredColor] defines the color which is masked to be transparent inside the window.
+/// Exposing this in client API is important since in certain instances, user might wanna change the color e.g.
+/// a UI constraint or the color already being present in the window somewhere.
+final ValueNotifier<Color> layeredColorNotifier =
+    ValueNotifier(kDefaultLayeredColor);

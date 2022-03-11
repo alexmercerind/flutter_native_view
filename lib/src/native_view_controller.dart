@@ -16,6 +16,27 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-export 'package:flutter_native_view/src/widgets.dart';
-export 'package:flutter_native_view/src/flutter_native_view.dart';
-export 'package:flutter_native_view/src/native_view_controller.dart';
+import 'dart:ui';
+
+import 'package:flutter_native_view/src/channel.dart';
+import 'package:flutter_native_view/src/constants.dart';
+
+class NativeViewController {
+  final int windowHandle;
+  NativeViewController({required this.windowHandle});
+
+  Future<void> createNativeView(Rect rect) async {
+    await channel.invokeMethod(
+      kCreateNativeView,
+      {
+        'window_handle': windowHandle,
+        'rect': {
+          'x': (rect.left * window.devicePixelRatio).toInt(),
+          'y': (rect.top * window.devicePixelRatio).toInt(),
+          'cx': (rect.width * window.devicePixelRatio).toInt(),
+          'cy': (rect.height * window.devicePixelRatio).toInt(),
+        },
+      },
+    );
+  }
+}

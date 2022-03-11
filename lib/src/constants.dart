@@ -16,6 +16,12 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-export 'package:flutter_native_view/src/widgets.dart';
-export 'package:flutter_native_view/src/flutter_native_view.dart';
-export 'package:flutter_native_view/src/native_view_controller.dart';
+import 'package:flutter/widgets.dart';
+
+const String kEnsureInitialized = 'EnsureInitialized';
+const String kUpdateLayeredColor = 'UpdateLayeredColor';
+const String kCreateNativeView = 'CreateNativeView';
+const String kDestroyNativeView = 'DestroyNativeView';
+
+const int kDefaultInitializationType = 1;
+const Color kDefaultLayeredColor = Color(0xFFB66146);
