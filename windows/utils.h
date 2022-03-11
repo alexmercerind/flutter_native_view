@@ -16,26 +16,12 @@
 /// You should have received a copy of the GNU General Public License along with
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
-#ifndef FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
-#define FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
 
-#include <flutter_plugin_registrar.h>
+#include <dwmapi.h>
 
-#ifdef FLUTTER_PLUGIN_IMPL
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllexport)
-#else
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllimport)
-#endif
+#include <cstdint>
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+RTL_OSVERSIONINFOW GetWindowsVersion();
 
-FLUTTER_PLUGIN_EXPORT void FlutterNativeViewPluginRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar);
-
-#if defined(__cplusplus)
-}  // extern "C"
-#endif
-
-#endif  // FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
+void SetWindowComposition(HWND window, int32_t accent_state,
+                          int32_t gradient_color);

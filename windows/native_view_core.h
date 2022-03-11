@@ -16,26 +16,21 @@
 /// You should have received a copy of the GNU General Public License along with
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
-#ifndef FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
-#define FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
 
-#include <flutter_plugin_registrar.h>
+#include <Windows.h>
 
-#ifdef FLUTTER_PLUGIN_IMPL
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllexport)
-#else
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllimport)
-#endif
+#include "utils.h"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+class NativeViewCore {
+ public:
+  NativeViewCore(HWND window);
 
-FLUTTER_PLUGIN_EXPORT void FlutterNativeViewPluginRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar);
+  int32_t EnsureInitialized(COLORREF layered_color);
 
-#if defined(__cplusplus)
-}  // extern "C"
-#endif
+  void UpdateLayeredColor(COLORREF layered_color);
 
-#endif  // FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
+  ~NativeViewCore();
+
+ private:
+  HWND window_ = nullptr;
+};
