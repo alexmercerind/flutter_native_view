@@ -19,6 +19,9 @@
 
 #include <Windows.h>
 
+#include <memory>
+#include <unordered_map>
+
 #include "utils.h"
 
 class NativeViewCore {
@@ -29,8 +32,13 @@ class NativeViewCore {
 
   void UpdateLayeredColor(COLORREF layered_color);
 
-  ~NativeViewCore();
+  void CreateNativeView(HWND window, int32_t x, int32_t y, int32_t cx,
+                        int32_t cy);
 
- private:
-  HWND window_ = nullptr;
+  static LRESULT CALLBACK SubclassWndProc(HWND window, UINT message,
+                                          WPARAM wparam, LPARAM lparam,
+                                          UINT_PTR subclassID,
+                                          DWORD_PTR refData) noexcept;
+
+  ~NativeViewCore();
 };

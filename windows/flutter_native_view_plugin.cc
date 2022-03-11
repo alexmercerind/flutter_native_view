@@ -18,6 +18,8 @@
 ///
 #include "include/flutter_native_view/flutter_native_view_plugin.h"
 
+#pragma warning(disable : 4312)
+
 #include <Windows.h>
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -29,8 +31,8 @@ namespace {
 
 static constexpr auto kEnsureInitialized = "EnsureInitialized";
 static constexpr auto kUpdateLayeredColor = "UpdateLayeredColor";
-static constexpr auto kCreateNativeView = "CreateView";
-static constexpr auto kDestroyNativeView = "DestroyView";
+static constexpr auto kCreateNativeView = "CreateNativeView";
+static constexpr auto kDestroyNativeView = "DestroyNativeView";
 
 class FlutterNativeViewPlugin : public flutter::Plugin {
  public:
@@ -99,6 +101,18 @@ void FlutterNativeViewPlugin::HandleMethodCall(
     auto G = std::get<int32_t>(layered_color[flutter::EncodableValue("G")]);
     auto B = std::get<int32_t>(layered_color[flutter::EncodableValue("B")]);
     native_view_core_->UpdateLayeredColor(RGB(R, G, B));
+    result->Success(flutter::EncodableValue(nullptr));
+  } else if (method_call.method_name().compare(kCreateNativeView) == 0) {
+    auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
+    auto window_handle =
+        std::get<int32_t>(arguments[flutter::EncodableValue("window_handle")]);
+    auto rect = std::get<flutter::EncodableMap>(
+        arguments[flutter::EncodableValue("rect")]);
+    auto x = std::get<int32_t>(rect[flutter::EncodableValue("x")]);
+    auto y = std::get<int32_t>(rect[flutter::EncodableValue("y")]);
+    auto cx = std::get<int32_t>(rect[flutter::EncodableValue("cx")]);
+    auto cy = std::get<int32_t>(rect[flutter::EncodableValue("cy")]);
+    native_view_core_->CreateNativeView((HWND)window_handle, x, y, cx, cy);
     result->Success(flutter::EncodableValue(nullptr));
   } else {
     result->NotImplemented();
