@@ -77,10 +77,17 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 #### Under Progress
 
 - Finalized API.
-- Performant window resizing & `NativeView` sizing.
+- Correct window resizing & `NativeView` sizing.
 - Interractions with the `NativeView` e.g. mouse clicks or keyboard presses.
 - Lazy resizing of `NativeView` `Widget` after changing size of the underlying native window to avoid airspace.
 - Removing Win32 specific types & `ifdef` magic.
+
+## Limitations & Known Issues
+
+This setup though performant & highly customizable has few limitations right now:
+- Minimizing or maximizing the parent Flutter window isn't very pleasing to look at.
+- Window snapping animations on Windows 11 causes the that new indicator to render on top of the child `HWND`s (z-order?).
+- Resizing window causes `NativeView`s to lag behind (race? slow `flutter::MethodResultFunctions`?). Maybe notifying the global positions of the `NativeView` upon every `build` using `dart:ffi` will be better?
 
 ## Platforms
 The plugin currently works on following platforms:
@@ -92,6 +99,8 @@ The plugin currently works on following platforms:
 |macOS   |Not Yet|
 
 ## License
+
+Currently licensing strictly.
 
 GNU General Public License v3.0
 
