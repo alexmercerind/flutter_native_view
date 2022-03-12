@@ -93,7 +93,31 @@ LRESULT CALLBACK NativeViewCore::SubclassWndProc(HWND window, UINT message,
                                                  UINT_PTR subclassID,
                                                  DWORD_PTR refData) noexcept {
   switch (message) {
-    case WM_WINDOWPOSCHANGED: {
+    case WM_ACTIVATE:
+      for (const auto& [native_view, rect] : g_native_views) {
+        RECT parent_window_rect;
+        GetWindowRect(g_window, &parent_window_rect);
+        const POINT border{::GetSystemMetrics(SM_CXFRAME) +
+                               ::GetSystemMetrics(SM_CXPADDEDBORDER),
+                           ::GetSystemMetrics(SM_CYFRAME)};
+        TITLEBARINFOEX title_bar_info;
+        title_bar_info.cbSize = sizeof(TITLEBARINFOEX);
+        ::SendMessage(g_window, WM_GETTITLEBARINFOEX, 0,
+                      (LPARAM)&title_bar_info);
+        int32_t title_bar_height =
+            title_bar_info.rcTitleBar.bottom - title_bar_info.rcTitleBar.top;
+        ::SetWindowPos(
+            native_view, g_window,
+            (int32_t)(parent_window_rect.left + rect->left + border.x),
+            (int32_t)(parent_window_rect.top + rect->top + title_bar_height +
+                      border.y),
+            (int32_t)rect->right, (int32_t)rect->bottom, SWP_NOACTIVATE);
+      }
+      break;
+    case WM_SIZE:
+    case WM_MOVE:
+    case WM_MOVING:
+    case WM_WINDOWPOSCHANGED:
       for (const auto& [native_view, rect] : g_native_views) {
         RECT parent_window_rect;
         GetWindowRect(g_window, &parent_window_rect);
@@ -108,14 +132,13 @@ LRESULT CALLBACK NativeViewCore::SubclassWndProc(HWND window, UINT message,
             title_bar_info.rcTitleBar.bottom - title_bar_info.rcTitleBar.top;
         // Position the |native_view| at the correct position behind the
         // |window_| (parent).
-        ::SetWindowPos(
-            native_view, g_window,
-            (int32_t)(parent_window_rect.left + rect->left + border.x),
-            (int32_t)(parent_window_rect.top + rect->top + title_bar_height +
-                      border.y),
-            (int32_t)rect->right, (int32_t)rect->bottom, SWP_NOACTIVATE);
+        ::MoveWindow(native_view,
+                   (int32_t)(parent_window_rect.left + rect->left + border.x),
+                   (int32_t)(parent_window_rect.top + rect->top +
+                             title_bar_height + border.y),
+                   (int32_t)rect->right, (int32_t)rect->bottom, FALSE);
       }
-    }
+      break;
     default:
       break;
   }
