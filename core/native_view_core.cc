@@ -60,11 +60,30 @@ void NativeViewCore::CreateNativeView(HWND window, int32_t left, int32_t top,
   native_views_[window] = rect;
   // Position the |window| at the correct position behind the |window_|
   // (parent).
-  auto global_rect = GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom,
-                                   device_pixel_ratio_);
+  auto global_rect =
+      GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
   ::SetWindowPos(window, window_, global_rect.left, global_rect.top,
                  global_rect.right - global_rect.left,
                  global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
+}
+
+void NativeViewCore::SetQueryNativeViewsCallback(
+    std::function<void()> callback) {
+  query_native_view_callback_ = callback;
+}
+
+void NativeViewCore::QueryNativeViewsUpdate(std::map<HWND, RECT> native_views) {
+  for (auto& [native_view, rect] : native_views) {
+    // Update local |native_views_|.
+    native_views_[native_view] = rect;
+    auto global_rect =
+        GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
+    // Move the |native_view|, since this happens when the size of the viewport
+    // is likely changed, thus redraw |native_view| in |MoveWindow|.
+    ::MoveWindow(native_view, global_rect.left, global_rect.top,
+                 global_rect.right - global_rect.left,
+                 global_rect.bottom - global_rect.top, TRUE);
+  }
 }
 
 std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
@@ -73,27 +92,31 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
   switch (message) {
     case WM_ACTIVATE:
       for (const auto& [native_view, rect] : native_views_) {
-        auto global_rect = GetGlobalRect(rect.left, rect.top, rect.right,
-                                         rect.bottom, device_pixel_ratio_);
+        auto global_rect =
+            GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
         // Position |native_view| such that it's z order is behind |window_|.
         ::SetWindowPos(native_view, window_, global_rect.left, global_rect.top,
                        global_rect.right - global_rect.left,
                        global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
       }
       break;
-    case WM_SIZE:
+
     case WM_MOVE:
     case WM_MOVING:
     case WM_WINDOWPOSCHANGED:
       for (const auto& [native_view, rect] : native_views_) {
-        auto global_rect = GetGlobalRect(rect.left, rect.top, rect.right,
-                                         rect.bottom, device_pixel_ratio_);
+        auto global_rect =
+            GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
         // Position the |native_view| at new position if the window was moved.
         // No redraw is required.
         ::MoveWindow(native_view, global_rect.left, global_rect.top,
                      global_rect.right - global_rect.left,
                      global_rect.bottom - global_rect.top, FALSE);
       }
+      break;
+    case WM_SIZE:
+    case WM_SYSCOMMAND:
+      query_native_view_callback_();
       break;
     default:
       break;
@@ -102,15 +125,13 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
 }
 
 RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
-                                   int32_t bottom, double device_pixel_ratio) {
+                                   int32_t bottom) {
   // Expanding the client area so that window boundaries don't leave empty
   // transparent airspace.
-  left -= static_cast<int32_t>(ceil(device_pixel_ratio));
-  top -= static_cast<int32_t>(ceil(device_pixel_ratio));
-  // Since the left & right have been reduced by 1 pixels, increasing the widths
-  // by 2 so as to cover the space correctly.
-  right += 2 * static_cast<int32_t>(ceil(device_pixel_ratio));
-  bottom += 2 * static_cast<int32_t>(ceil(device_pixel_ratio));
+  left -= static_cast<int32_t>(ceil(device_pixel_ratio_));
+  top -= static_cast<int32_t>(ceil(device_pixel_ratio_));
+  right += static_cast<int32_t>(ceil(device_pixel_ratio_));
+  bottom += static_cast<int32_t>(ceil(device_pixel_ratio_));
   RECT window_rect;
   ::GetWindowRect(window_, &window_rect);
   const POINT border{

@@ -19,15 +19,19 @@
 
 #include <Windows.h>
 
+#include <functional>
+#include <map>
 #include <optional>
-#include <unordered_map>
+#include <vector>
 
 #include "utils.h"
 
 class NativeViewCore {
  public:
-  NativeViewCore(HWND window);
+  std::map<HWND, RECT> native_views() const { return native_views_; }
 
+  NativeViewCore(HWND window);
+  
   int32_t EnsureInitialized(COLORREF layered_color);
 
   void UpdateLayeredColor(COLORREF layered_color);
@@ -35,16 +39,22 @@ class NativeViewCore {
   void CreateNativeView(HWND window, int32_t left, int32_t top, int32_t right,
                         int32_t bottom, double device_pixel_ratio);
 
+  void SetQueryNativeViewsCallback(std::function<void()> callback);
+
+  void QueryNativeViewsUpdate(std::map<HWND, RECT> rects);
+
   std::optional<HRESULT> WindowProc(HWND hwnd, UINT message, WPARAM wparam,
                                     LPARAM lparam);
 
   ~NativeViewCore();
 
  private:
-  RECT GetGlobalRect(int32_t left, int32_t top, int32_t right, int32_t bottom,
-                     double device_pixel_ratio);
+  RECT GetGlobalRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
   HWND window_ = nullptr;
   double device_pixel_ratio_ = 1.0;
-  std::unordered_map<HWND, RECT> native_views_ = {};
+  // Not using |unordered_map| to keep HWND keys sorted for
+  // |UpdateNativeViewsCallback|.
+  std::map<HWND, RECT> native_views_ = {};
+  std::function<void()> query_native_view_callback_ = []() -> void {};
 };
