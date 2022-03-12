@@ -23,5 +23,7 @@ const String kUpdateLayeredColor = 'UpdateLayeredColor';
 const String kCreateNativeView = 'CreateNativeView';
 const String kDestroyNativeView = 'DestroyNativeView';
 
+const String kQueryNativeViews = 'QueryNativeViews';
+
 const int kDefaultInitializationType = 1;
 const Color kDefaultLayeredColor = Color(0xFFB66146);

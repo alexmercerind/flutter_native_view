@@ -17,13 +17,17 @@
 ///
 
 import 'dart:ui';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_native_view/src/channel.dart';
 import 'package:flutter_native_view/src/constants.dart';
 
 class NativeViewController {
   final int windowHandle;
-  NativeViewController({required this.windowHandle});
+  final GlobalKey globalKey = GlobalKey();
+  NativeViewController({required this.windowHandle}) {
+    kNativeViewControllers[windowHandle] = this;
+  }
 
   Future<void> createNativeView(Rect rect) async {
     await channel.invokeMethod(
@@ -31,10 +35,11 @@ class NativeViewController {
       {
         'window_handle': windowHandle,
         'rect': {
-          'x': (rect.left * window.devicePixelRatio).toInt(),
-          'y': (rect.top * window.devicePixelRatio).toInt(),
-          'cx': (rect.width * window.devicePixelRatio).toInt(),
-          'cy': (rect.height * window.devicePixelRatio).toInt(),
+          'left': (rect.left * window.devicePixelRatio).toInt(),
+          'top': (rect.top * window.devicePixelRatio).toInt(),
+          'right': (rect.right * window.devicePixelRatio).toInt(),
+          'bottom': (rect.bottom * window.devicePixelRatio).toInt(),
+          'device_pixel_ratio': window.devicePixelRatio,
         },
       },
     );

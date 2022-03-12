@@ -55,12 +55,13 @@ class NativeView extends StatefulWidget {
 
 class _NativeViewState extends State<NativeView> {
   bool initialized = false;
-  GlobalKey key = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      await widget.controller.createNativeView(key.rect!);
+      await widget.controller
+          .createNativeView(widget.controller.globalKey.rect!);
       setState(() {
         initialized = true;
       });
@@ -70,7 +71,7 @@ class _NativeViewState extends State<NativeView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
-      key: key,
+      key: widget.controller.globalKey,
       valueListenable: initializationTypeNotifier,
       builder: (context, initializationType, _) =>
           ValueListenableBuilder<Color>(
