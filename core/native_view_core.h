@@ -19,7 +19,7 @@
 
 #include <Windows.h>
 
-#include <memory>
+#include <optional>
 #include <unordered_map>
 
 #include "utils.h"
@@ -32,13 +32,19 @@ class NativeViewCore {
 
   void UpdateLayeredColor(COLORREF layered_color);
 
-  void CreateNativeView(HWND window, int32_t x, int32_t y, int32_t cx,
-                        int32_t cy);
+  void CreateNativeView(HWND window, int32_t left, int32_t top, int32_t right,
+                        int32_t bottom, double device_pixel_ratio);
 
-  static LRESULT CALLBACK SubclassWndProc(HWND window, UINT message,
-                                          WPARAM wparam, LPARAM lparam,
-                                          UINT_PTR subclassID,
-                                          DWORD_PTR refData) noexcept;
+  std::optional<HRESULT> WindowProc(HWND hwnd, UINT message, WPARAM wparam,
+                                    LPARAM lparam);
 
   ~NativeViewCore();
+
+ private:
+  RECT GetGlobalRect(int32_t left, int32_t top, int32_t right, int32_t bottom,
+                     double device_pixel_ratio);
+
+  HWND window_ = nullptr;
+  double device_pixel_ratio_ = 1.0;
+  std::unordered_map<HWND, RECT> native_views_ = {};
 };

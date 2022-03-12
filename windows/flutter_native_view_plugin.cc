@@ -49,8 +49,9 @@ class FlutterNativeViewPlugin : public flutter::Plugin {
 
   HWND GetWindow();
 
-  flutter::PluginRegistrarWindows* registrar_;
-  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_;
+  flutter::PluginRegistrarWindows* registrar_ = nullptr;
+  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_ =
+      nullptr;
   std::unique_ptr<NativeViewCore> native_view_core_ = nullptr;
 };
 
@@ -92,6 +93,11 @@ void FlutterNativeViewPlugin::HandleMethodCall(
     auto B = std::get<int32_t>(layered_color[flutter::EncodableValue("B")]);
     auto initialization_type =
         native_view_core_->EnsureInitialized(RGB(R, G, B));
+    registrar_->RegisterTopLevelWindowProcDelegate(
+        [=](HWND hwnd, UINT message, WPARAM wparam,
+            LPARAM lparam) -> std::optional<HRESULT> {
+          return native_view_core_->WindowProc(hwnd, message, wparam, lparam);
+        });
     result->Success(flutter::EncodableValue(initialization_type));
   } else if (method_call.method_name().compare(kUpdateLayeredColor) == 0) {
     auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
@@ -108,11 +114,14 @@ void FlutterNativeViewPlugin::HandleMethodCall(
         std::get<int32_t>(arguments[flutter::EncodableValue("window_handle")]);
     auto rect = std::get<flutter::EncodableMap>(
         arguments[flutter::EncodableValue("rect")]);
-    auto x = std::get<int32_t>(rect[flutter::EncodableValue("x")]);
-    auto y = std::get<int32_t>(rect[flutter::EncodableValue("y")]);
-    auto cx = std::get<int32_t>(rect[flutter::EncodableValue("cx")]);
-    auto cy = std::get<int32_t>(rect[flutter::EncodableValue("cy")]);
-    native_view_core_->CreateNativeView((HWND)window_handle, x, y, cx, cy);
+    auto left = std::get<int32_t>(rect[flutter::EncodableValue("left")]);
+    auto top = std::get<int32_t>(rect[flutter::EncodableValue("top")]);
+    auto right = std::get<int32_t>(rect[flutter::EncodableValue("right")]);
+    auto bottom = std::get<int32_t>(rect[flutter::EncodableValue("bottom")]);
+    auto device_pixel_ratio =
+        std::get<double>(rect[flutter::EncodableValue("device_pixel_ratio")]);
+    native_view_core_->CreateNativeView((HWND)window_handle, left, top, right,
+                                        bottom, device_pixel_ratio);
     result->Success(flutter::EncodableValue(nullptr));
   } else {
     result->NotImplemented();
