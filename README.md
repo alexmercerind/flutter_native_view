@@ -74,7 +74,7 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 - Multiple instances of `NativeView`.
 - Window movement handling & `NativeView`s positioning.
 - Window resize handling & `NativeView`s sizing.
-- Windows 7 SP1 >= support.
+- ~~Windows 7 SP1 >= support.~~
 
 #### Under Progress
 
