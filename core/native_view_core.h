@@ -31,13 +31,14 @@ class NativeViewCore {
   std::map<HWND, RECT> native_views() const { return native_views_; }
 
   NativeViewCore(HWND window);
-  
+
   int32_t EnsureInitialized(COLORREF layered_color);
 
   void UpdateLayeredColor(COLORREF layered_color);
 
-  void CreateNativeView(HWND window, int32_t left, int32_t top, int32_t right,
-                        int32_t bottom, double device_pixel_ratio);
+  void CreateNativeView(HWND window, RECT rect, double device_pixel_ratio);
+
+  void ResizeNativeView(HWND window, RECT rect);
 
   void SetQueryNativeViewsCallback(std::function<void()> callback);
 

@@ -43,8 +43,7 @@ void NativeViewCore::UpdateLayeredColor(COLORREF layered_color) {
   ::SetLayeredWindowAttributes(window_, layered_color, 0, LWA_COLORKEY);
 }
 
-void NativeViewCore::CreateNativeView(HWND window, int32_t left, int32_t top,
-                                      int32_t right, int32_t bottom,
+void NativeViewCore::CreateNativeView(HWND window, RECT rect,
                                       double device_pixel_ratio) {
   auto style = ::GetWindowLongPtr(window, GWL_STYLE);
   // TODO: Remove taskbar entry of the |window|.
@@ -52,11 +51,6 @@ void NativeViewCore::CreateNativeView(HWND window, int32_t left, int32_t top,
              WS_EX_APPWINDOW);
   ::SetWindowLongPtr(window, GWL_STYLE, style);
   device_pixel_ratio_ = device_pixel_ratio;
-  RECT rect;
-  rect.left = left;
-  rect.top = top;
-  rect.right = right;
-  rect.bottom = bottom;
   native_views_[window] = rect;
   // Position the |window| at the correct position behind the |window_|
   // (parent).
@@ -79,11 +73,22 @@ void NativeViewCore::QueryNativeViewsUpdate(std::map<HWND, RECT> native_views) {
     auto global_rect =
         GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
     // Move the |native_view|, since this happens when the size of the viewport
-    // is likely changed, thus redraw |native_view| in |MoveWindow|.
+    // is likely changed, thus redraw |native_view| in |MoveWindow| call.
     ::MoveWindow(native_view, global_rect.left, global_rect.top,
                  global_rect.right - global_rect.left,
                  global_rect.bottom - global_rect.top, TRUE);
   }
+}
+
+void NativeViewCore::ResizeNativeView(HWND window, RECT rect) {
+  native_views_[window] = rect;
+  auto global_rect =
+      GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
+  // Move the |window|, since this happens when the size of the viewport
+  // is likely changed, thus redraw |window| in |MoveWindow| call.
+  ::MoveWindow(window, global_rect.left, global_rect.top,
+               global_rect.right - global_rect.left,
+               global_rect.bottom - global_rect.top, TRUE);
 }
 
 std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
