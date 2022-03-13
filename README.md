@@ -14,11 +14,7 @@ On the other hand, a window created by the client code itself e.g. a webview ins
 - If client code decides to create an `HWND` through platform channel interface, they can use the setup present in [`core`](https://github.com/alexmercerind/flutter_native_view/tree/master/core) to embed a window.
 - Since `dart:ffi` is very capable now, one can pass the `HWND` directly as `int` of the window they created using `dart:ffi` or [`win32`](https://github.com/timsneath/win32) through existing plugin API to embed it.
 
-
-
-https://user-images.githubusercontent.com/28951144/158052208-2fdfb136-0db0-4c55-9483-6b345cf4350d.mp4
-
-
+https://user-images.githubusercontent.com/28951144/158053165-bcc74341-8f93-4a58-ab88-d92d1ce7fa71.mp4
 
 ## Example
 
