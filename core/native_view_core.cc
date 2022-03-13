@@ -150,9 +150,11 @@ RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
   RECT rect;
   rect.left = (int32_t)(window_rect.left + left + border.x);
   rect.top = (int32_t)(window_rect.top + top + title_bar_height + border.y);
-  rect.right = (int32_t)(window_rect.left + right + border.x);
+  rect.right =
+      min((int32_t)(window_rect.left + right + border.x), window_rect.right);
   rect.bottom =
-      (int32_t)(window_rect.top + bottom + title_bar_height + border.y);
+      min((int32_t)(window_rect.top + bottom + title_bar_height + border.y),
+          window_rect.bottom);
   return rect;
 }
 
