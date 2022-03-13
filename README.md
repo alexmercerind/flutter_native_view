@@ -1,4 +1,5 @@
 # [flutter_native_view](https://github.com/alexmercerind/flutter_native_view)
+
 Embedding native windows into Flutter window.
 
 ## Description
@@ -23,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   final controller = NativeViewController(
     // Using [FindWindow] from `package:win32` to retrieve [HWND] as [int].
     windowHandle: FindWindow(nullptr, 'VLC Media Player'.toNativeUtf16()));
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,7 +54,7 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
-      ),    
+      ),
     );
   }
 }
@@ -71,13 +72,14 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 
 - Placement of other Flutter `Widget`s on top of the `NativeView`.
 - Multiple instances of `NativeView`.
-- window movement handling & `NativeView`s positioning.
+- Window movement handling & `NativeView`s positioning.
+- Window resize handling & `NativeView`s sizing.
 - Windows 7 SP1 >= support.
 
 #### Under Progress
 
 - Finalized API.
-- Correct window resizing & `NativeView` sizing.
+- Fixing airspace issues.
 - Interractions with the `NativeView` e.g. mouse clicks or keyboard presses.
 - Lazy resizing of `NativeView` `Widget` after changing size of the underlying native window to avoid airspace.
 - Removing Win32 specific types & `ifdef` magic.
@@ -85,18 +87,20 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 ## Limitations & Known Issues
 
 This setup though performant & highly customizable has few limitations right now:
+
 - Minimizing or maximizing the parent Flutter window isn't very pleasing to look at.
 - Window snapping animations on Windows 11 causes the that new indicator to render on top of the child `HWND`s (z-order?).
 - Resizing window causes `NativeView`s to lag behind (race? slow `flutter::MethodResultFunctions`?). Maybe notifying the global positions of the `NativeView` upon every `build` using `dart:ffi` will be better?
 
 ## Platforms
+
 The plugin currently works on following platforms:
 
-|Platform|State  |
-|--------|-------|
-|Windows |Working|
-|Linux   |Not Yet|
-|macOS   |Not Yet|
+| Platform | State   |
+| -------- | ------- |
+| Windows  | Working |
+| Linux    | Not Yet |
+| macOS    | Not Yet |
 
 ## License
 
@@ -105,4 +109,3 @@ Currently licensing strictly.
 GNU General Public License v3.0
 
 Copyright (C) 2021, Hitesh Kumar Saini <<saini123hitesh@gmail.com>>
-
