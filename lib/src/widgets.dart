@@ -60,8 +60,7 @@ class _NativeViewState extends State<NativeView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      await widget.controller
-          .createNativeView(widget.controller.globalKey.rect!);
+      await widget.controller.createNativeView();
       setState(() {
         initialized = true;
       });
@@ -75,24 +74,26 @@ class _NativeViewState extends State<NativeView> {
       valueListenable: initializationTypeNotifier,
       builder: (context, initializationType, _) =>
           ValueListenableBuilder<Color>(
-        valueListenable: layeredColorNotifier,
-        builder: (context, layeredColor, _) => initialized
-            ? initializationType == 0
-                ? CustomPaint(
-                    painter: const _PaintRemover(),
-                    size: Size(widget.width, widget.height),
-                  )
-                : Container(
-                    color: layeredColor,
-                    width: widget.width,
-                    height: widget.height,
-                  )
-            : Container(
-                color: Colors.transparent,
-                width: widget.width,
-                height: widget.height,
-              ),
-      ),
+              valueListenable: layeredColorNotifier,
+              builder: (context, layeredColor, _) {
+                widget.controller.resizeNativeViewStreamController.add(null);
+                return initialized
+                    ? initializationType == 0
+                        ? CustomPaint(
+                            painter: const _PaintRemover(),
+                            size: Size(widget.width, widget.height),
+                          )
+                        : Container(
+                            color: layeredColor,
+                            width: widget.width,
+                            height: widget.height,
+                          )
+                    : Container(
+                        color: Colors.transparent,
+                        width: widget.width,
+                        height: widget.height,
+                      );
+              }),
     );
   }
 }

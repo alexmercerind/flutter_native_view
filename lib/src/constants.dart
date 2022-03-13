@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 const String kEnsureInitialized = 'EnsureInitialized';
 const String kUpdateLayeredColor = 'UpdateLayeredColor';
 const String kCreateNativeView = 'CreateNativeView';
+const String kResizeNativeView = 'ResizeNativeView';
 const String kDestroyNativeView = 'DestroyNativeView';
 
 const String kQueryNativeViews = 'QueryNativeViews';

@@ -16,32 +16,54 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter_native_view/src/channel.dart';
 import 'package:flutter_native_view/src/constants.dart';
+import 'package:flutter_native_view/src/widgets.dart';
 
 class NativeViewController {
   final int windowHandle;
   final GlobalKey globalKey = GlobalKey();
+
+  // [StreamController] to avoid race & send [Rect]s synchronously.
+  final StreamController<void> resizeNativeViewStreamController =
+      StreamController<void>();
+
   NativeViewController({required this.windowHandle}) {
     kNativeViewControllers[windowHandle] = this;
   }
 
-  Future<void> createNativeView(Rect rect) async {
+  Future<void> createNativeView() async {
     await channel.invokeMethod(
       kCreateNativeView,
       {
         'window_handle': windowHandle,
         'rect': {
-          'left': (rect.left * window.devicePixelRatio).toInt(),
-          'top': (rect.top * window.devicePixelRatio).toInt(),
-          'right': (rect.right * window.devicePixelRatio).toInt(),
-          'bottom': (rect.bottom * window.devicePixelRatio).toInt(),
-          'device_pixel_ratio': window.devicePixelRatio,
+          'left': (globalKey.rect!.left * window.devicePixelRatio).toInt(),
+          'top': (globalKey.rect!.top * window.devicePixelRatio).toInt(),
+          'right': (globalKey.rect!.right * window.devicePixelRatio).toInt(),
+          'bottom': (globalKey.rect!.bottom * window.devicePixelRatio).toInt(),
         },
+        'device_pixel_ratio': window.devicePixelRatio,
       },
     );
+    resizeNativeViewStreamController.stream.listen((event) async {
+      await channel.invokeMethod(
+        kResizeNativeView,
+        {
+          'window_handle': windowHandle,
+          'rect': {
+            'left': (globalKey.rect!.left * window.devicePixelRatio).toInt(),
+            'top': (globalKey.rect!.top * window.devicePixelRatio).toInt(),
+            'right': (globalKey.rect!.right * window.devicePixelRatio).toInt(),
+            'bottom':
+                (globalKey.rect!.bottom * window.devicePixelRatio).toInt(),
+          },
+        },
+      );
+    });
   }
 }
