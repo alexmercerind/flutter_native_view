@@ -34,13 +34,13 @@ class NativeViewCore {
 
   void UpdateLayeredColor(COLORREF layered_color);
 
-  void CreateNativeView(HWND window, RECT rect, double device_pixel_ratio);
+  void CreateNativeView(HWND native_view, RECT rect, double device_pixel_ratio);
 
-  void ResizeNativeView(HWND window, RECT rect);
+  void ResizeNativeView(HWND native_view, RECT rect);
 
   void SetQueryNativeViewsCallback(std::function<void()> callback);
 
-  void QueryNativeViewsUpdate(std::map<HWND, RECT> rects);
+  void QueryNativeViewsUpdate(std::map<HWND, RECT> native_views);
 
   std::optional<HRESULT> WindowProc(HWND hwnd, UINT message, WPARAM wparam,
                                     LPARAM lparam);

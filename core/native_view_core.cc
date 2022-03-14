@@ -50,9 +50,9 @@ void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
   // (parent).
   auto global_rect =
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
-  ::MoveWindow(native_view, global_rect.left, global_rect.top,
-               global_rect.right - global_rect.left,
-               global_rect.bottom - global_rect.top, FALSE);
+  ::SetWindowPos(native_view, child_window_, global_rect.left, global_rect.top,
+                 global_rect.right - global_rect.left,
+                 global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
 }
 
 void NativeViewCore::SetQueryNativeViewsCallback(
@@ -68,9 +68,9 @@ void NativeViewCore::QueryNativeViewsUpdate(std::map<HWND, RECT> native_views) {
         GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
     // Move the |native_view|, since this happens when the size of the viewport
     // is likely changed, thus redraw |native_view| in |MoveWindow| call.
-    ::MoveWindow(native_view, global_rect.left, global_rect.top,
-                 global_rect.right - global_rect.left,
-                 global_rect.bottom - global_rect.top, TRUE);
+    ::SetWindowPos(native_view, child_window_, global_rect.left,
+                   global_rect.top, global_rect.right - global_rect.left,
+                   global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
   }
 }
 
@@ -80,9 +80,9 @@ void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
   // Move the |native_view|, since this happens when the size of the viewport
   // is likely changed, thus redraw |native_view| in |MoveWindow| call.
-  ::MoveWindow(native_view, global_rect.left, global_rect.top,
-               global_rect.right - global_rect.left,
-               global_rect.bottom - global_rect.top, TRUE);
+  ::SetWindowPos(native_view, child_window_, global_rect.left, global_rect.top,
+                 global_rect.right - global_rect.left,
+                 global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
 }
 
 std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
@@ -94,9 +94,9 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
         auto global_rect =
             GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
         // Position |native_view| such that it's z order is behind |window_|.
-        ::MoveWindow(native_view, global_rect.left, global_rect.top,
-                     global_rect.right - global_rect.left,
-                     global_rect.bottom - global_rect.top, FALSE);
+        ::SetWindowPos(native_view, child_window_, global_rect.left,
+                       global_rect.top, global_rect.right - global_rect.left,
+                       global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
       }
       break;
     case WM_MOVE:
