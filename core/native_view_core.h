@@ -24,13 +24,11 @@
 #include <optional>
 #include <vector>
 
-#include "utils.h"
-
 class NativeViewCore {
  public:
   std::map<HWND, RECT> native_views() const { return native_views_; }
 
-  NativeViewCore(HWND window);
+  NativeViewCore(HWND window, HWND child_window);
 
   int32_t EnsureInitialized(COLORREF layered_color);
 
@@ -53,6 +51,7 @@ class NativeViewCore {
   RECT GetGlobalRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
   HWND window_ = nullptr;
+  HWND child_window_ = nullptr;
   double device_pixel_ratio_ = 1.0;
   // Not using |unordered_map| to keep HWND keys sorted for
   // |UpdateNativeViewsCallback|.

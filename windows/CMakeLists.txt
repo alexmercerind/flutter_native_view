@@ -6,7 +6,6 @@ set(PLUGIN_NAME "flutter_native_view_plugin")
 
 add_library(${PLUGIN_NAME} SHARED
   "../core/native_view_core.cc"
-  "../core/utils.cc"
   "flutter_native_view_plugin.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
