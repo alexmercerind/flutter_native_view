@@ -16,27 +16,10 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_native_view/src/value_notifiers.dart';
 import 'package:flutter_native_view/src/native_view_controller.dart';
-
-class _PaintRemover extends CustomPainter {
-  const _PaintRemover();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()
-        ..blendMode = BlendMode.clear
-        ..color = Colors.transparent,
-    );
-  }
-
-  @override
-  bool shouldRepaint(oldDelegate) => false;
-}
 
 class NativeView extends StatefulWidget {
   final NativeViewController controller;
@@ -53,49 +36,36 @@ class NativeView extends StatefulWidget {
   State<NativeView> createState() => _NativeViewState();
 }
 
-class _NativeViewState extends State<NativeView> {
-  bool initialized = false;
-
+class _NativeViewState extends State<NativeView>
+    with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await widget.controller.createNativeView();
-      setState(() {
-        initialized = true;
-      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      key: widget.controller.globalKey,
-      valueListenable: initializationTypeNotifier,
-      builder: (context, initializationType, _) =>
-          ValueListenableBuilder<Color>(
-              valueListenable: layeredColorNotifier,
-              builder: (context, layeredColor, _) {
-                widget.controller.resizeNativeViewStreamController.add(null);
-                return initialized
-                    ? initializationType == 0
-                        ? CustomPaint(
-                            painter: const _PaintRemover(),
-                            size: Size(widget.width, widget.height),
-                          )
-                        : Container(
-                            color: layeredColor,
-                            width: widget.width,
-                            height: widget.height,
-                          )
-                    : Container(
-                        color: Colors.transparent,
-                        width: widget.width,
-                        height: widget.height,
-                      );
-              }),
+    super.build(context);
+    return ValueListenableBuilder<Color>(
+      key: widget.controller.rendererKey,
+      valueListenable: layeredColorNotifier,
+      builder: (context, layeredColor, _) {
+        widget.controller.resizeNativeViewStreamController.add(null);
+        return Container(
+          key: widget.controller.painterKey,
+          color: layeredColor,
+          width: widget.width,
+          height: widget.height,
+        );
+      },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 extension GlobalKeyExtension on GlobalKey {

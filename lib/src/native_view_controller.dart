@@ -25,45 +25,57 @@ import 'package:flutter_native_view/src/constants.dart';
 import 'package:flutter_native_view/src/widgets.dart';
 
 class NativeViewController {
-  final int windowHandle;
-  final GlobalKey globalKey = GlobalKey();
+  final int handle;
+  final GlobalKey rendererKey = GlobalKey();
+  final GlobalKey painterKey = GlobalKey();
 
   // [StreamController] to avoid race & send [Rect]s synchronously.
   final StreamController<void> resizeNativeViewStreamController =
       StreamController<void>();
+  late final StreamSubscription<void> resizeNativeViewStreamSubscription;
 
-  NativeViewController({required this.windowHandle}) {
-    kNativeViewControllers[windowHandle] = this;
+  NativeViewController({required this.handle}) {
+    kNativeViewControllers[handle] = this;
+    resizeNativeViewStreamSubscription =
+        resizeNativeViewStreamController.stream.listen((event) async {
+      await refresh();
+    });
+  }
+
+  Future<void> dispose() {
+    kNativeViewControllers.remove(handle);
+    return resizeNativeViewStreamSubscription.cancel();
   }
 
   Future<void> createNativeView() async {
     await channel.invokeMethod(
       kCreateNativeView,
       {
-        'window_handle': windowHandle,
+        'window_handle': handle,
         'rect': {
-          'left': (globalKey.rect!.left * window.devicePixelRatio).toInt(),
-          'top': (globalKey.rect!.top * window.devicePixelRatio).toInt(),
-          'right': (globalKey.rect!.right * window.devicePixelRatio).toInt(),
-          'bottom': (globalKey.rect!.bottom * window.devicePixelRatio).toInt(),
+          'left': (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+          'top': (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+          'right': (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+          'bottom': (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
         },
         'device_pixel_ratio': window.devicePixelRatio,
       },
     );
-    resizeNativeViewStreamController.stream.listen((event) async {
-      await channel.invokeMethod(
-        kResizeNativeView,
-        {
-          'window_handle': windowHandle,
-          'rect': {
-            'left': (globalKey.rect!.left * window.devicePixelRatio).toInt(),
-            'top': (globalKey.rect!.top * window.devicePixelRatio).toInt(),
-            'right': (globalKey.rect!.right * window.devicePixelRatio).toInt(),
-            'bottom':
-                (globalKey.rect!.bottom * window.devicePixelRatio).toInt(),
-          },
+  }
+
+  Future<void> refresh() async {
+    await channel.invokeMethod(
+      kResizeNativeView,
+      {
+        'window_handle': handle,
+        'rect': {
+          'left': (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+          'top': (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+          'right': (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+          'bottom': (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
         },
-      );
-    });
+      },
+    );
+    rendererKey.currentState!.setState(() {});
   }
 }

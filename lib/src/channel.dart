@@ -25,26 +25,23 @@ import 'package:flutter_native_view/flutter_native_view.dart';
 final MethodChannel channel = const MethodChannel('flutter_native_view')
   ..setMethodCallHandler((call) async {
     if (call.method == kQueryNativeViews) {
-      List<int> windowHandles = call.arguments;
+      List<int> handles = call.arguments;
       List<Map<String, int>> rects = [];
-      for (final windowHandle in windowHandles) {
+      for (final handle in handles) {
         rects.add(
           {
-            'left':
-                (kNativeViewControllers[windowHandle]!.globalKey.rect!.left *
-                        window.devicePixelRatio)
-                    .toInt(),
-            'top': (kNativeViewControllers[windowHandle]!.globalKey.rect!.top *
+            'left': (kNativeViewControllers[handle]!.painterKey.rect!.left *
                     window.devicePixelRatio)
                 .toInt(),
-            'right':
-                (kNativeViewControllers[windowHandle]!.globalKey.rect!.right *
-                        window.devicePixelRatio)
-                    .toInt(),
-            'bottom':
-                (kNativeViewControllers[windowHandle]!.globalKey.rect!.bottom *
-                        window.devicePixelRatio)
-                    .toInt(),
+            'top': (kNativeViewControllers[handle]!.painterKey.rect!.top *
+                    window.devicePixelRatio)
+                .toInt(),
+            'right': (kNativeViewControllers[handle]!.painterKey.rect!.right *
+                    window.devicePixelRatio)
+                .toInt(),
+            'bottom': (kNativeViewControllers[handle]!.painterKey.rect!.bottom *
+                    window.devicePixelRatio)
+                .toInt(),
           },
         );
       }
