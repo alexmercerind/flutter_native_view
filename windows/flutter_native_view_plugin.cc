@@ -89,7 +89,8 @@ void FlutterNativeViewPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   if (native_view_core_ == nullptr) {
-    native_view_core_ = std::make_unique<NativeViewCore>(GetWindow());
+    native_view_core_ = std::make_unique<NativeViewCore>(
+        GetWindow(), registrar_->GetView()->GetNativeWindow());
   }
   if (method_call.method_name().compare(kEnsureInitialized) == 0) {
     auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
@@ -105,48 +106,6 @@ void FlutterNativeViewPlugin::HandleMethodCall(
             LPARAM lparam) -> std::optional<HRESULT> {
           return native_view_core_->WindowProc(hwnd, message, wparam, lparam);
         });
-    // native_view_core_->SetQueryNativeViewsCallback([=]() -> void {
-    //   auto query_native_view =
-    //       std::make_unique<flutter::MethodResultFunctions<>>(
-    //           [=](const flutter::EncodableValue* success_value) {
-    //             std::vector<HWND> window_handles = {};
-    //             for (const auto& [window_handle, _] :
-    //                  native_view_core_->native_views()) {
-    //               window_handles.emplace_back(window_handle);
-    //             }
-    //             auto updated_native_views =
-    //             native_view_core_->native_views(); auto rects =
-    //             std::get<flutter::EncodableList>(*success_value); for (int i
-    //             = 0; i < rects.size(); i++) {
-    //               auto rect_map = std::get<flutter::EncodableMap>(rects[i]);
-    //               auto left = std::get<int32_t>(
-    //                   rect_map[flutter::EncodableValue("left")]);
-    //               auto top = std::get<int32_t>(
-    //                   rect_map[flutter::EncodableValue("top")]);
-    //               auto right = std::get<int32_t>(
-    //                   rect_map[flutter::EncodableValue("right")]);
-    //               auto bottom = std::get<int32_t>(
-    //                   rect_map[flutter::EncodableValue("bottom")]);
-    //               RECT rect;
-    //               rect.left = left;
-    //               rect.top = top;
-    //               rect.right = right;
-    //               rect.bottom = bottom;
-    //               updated_native_views[window_handles[i]] = rect;
-    //             }
-    //             native_view_core_->QueryNativeViewsUpdate(updated_native_views);
-    //           },
-    //           nullptr, nullptr);
-    //   std::vector<int32_t> window_handles = {};
-    //   for (const auto& [window_handle, _] :
-    //   native_view_core_->native_views()) {
-    //     window_handles.emplace_back((int32_t)window_handle);
-    //   }
-    //   channel_->InvokeMethod(
-    //       kQueryNativeViews,
-    //       std::make_unique<flutter ::EncodableValue>(window_handles),
-    //       std::move(query_native_view));
-    // });
     result->Success(flutter::EncodableValue(initialization_type));
   } else if (method_call.method_name().compare(kUpdateLayeredColor) == 0) {
     auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
