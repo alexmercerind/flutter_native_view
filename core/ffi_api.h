@@ -43,6 +43,8 @@ DLLEXPORT void NativeViewCoreCreateNativeView(uint32_t native_view,
                                               uint32_t right, uint32_t bottom,
                                               double device_pixel_ratio);
 
+DLLEXPORT void NativeViewCoreDisposeNativeView(uint32_t native_view);
+
 DLLEXPORT void NativeViewCoreResizeNativeView(uint32_t native_view,
                                               uint32_t left, uint32_t top,
                                               uint32_t right, uint32_t bottom);

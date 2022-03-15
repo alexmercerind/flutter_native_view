@@ -46,6 +46,8 @@ class NativeViewCore {
 
   void CreateNativeView(HWND native_view, RECT rect, double device_pixel_ratio);
 
+  void DisposeNativeView(HWND native_view);
+
   void ResizeNativeView(HWND native_view, RECT rect);
 
   std::optional<HRESULT> WindowProc(HWND hwnd, UINT message, WPARAM wparam,

@@ -62,12 +62,17 @@ void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
                  global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
 }
 
+void NativeViewCore::DisposeNativeView(HWND native_view) {
+  ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+  native_views_.erase(native_view);
+}
+
 void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
   native_views_[native_view] = rect;
   auto global_rect =
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
   // Move the |native_view|, since this happens when the size of the viewport
-  // is likely changed, thus redraw |native_view| in |MoveWindow| call.
+  // is likely changed, thus redraw is required.
   ::SetWindowPos(native_view, child_window_, global_rect.left, global_rect.top,
                  global_rect.right - global_rect.left,
                  global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
@@ -126,7 +131,12 @@ RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
   return rect;
 }
 
-NativeViewCore::~NativeViewCore() {}
+NativeViewCore::~NativeViewCore() {
+  for (const auto& [native_view, rect] : native_views_) {
+    ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+  }
+  native_views_.clear();
+}
 
 std::unique_ptr<NativeViewCore> NativeViewCore::instance_ = nullptr;
 

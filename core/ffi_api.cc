@@ -40,6 +40,11 @@ void NativeViewCoreCreateNativeView(uint32_t native_view, uint32_t left,
       reinterpret_cast<HWND>(native_view), rect, device_pixel_ratio);
 }
 
+void NativeViewCoreDisposeNativeView(uint32_t native_view) {
+  NativeViewCore::GetInstance()->DisposeNativeView(
+      reinterpret_cast<HWND>(native_view));
+}
+
 void NativeViewCoreResizeNativeView(uint32_t native_view, uint32_t left,
                                     uint32_t top, uint32_t right,
                                     uint32_t bottom) {
