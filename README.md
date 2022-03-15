@@ -94,6 +94,7 @@ You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or 
 - Semi transparent `Widget`s on top of `NativeView`.
 - Proper disposing of `HWND` and instances.
 - Removing Win32 specific types & `ifdef` magic.
+- Defining z-order for each `NativeViewController`.
 - Ideally, flutter view should be made transparent instead of masking a color to show the `native_view`s underneath (but I'm not talented enough to solve that yet).
   - Right now, I'm not sure if subclassing flutter view `HWND` can somehow solve this issue.
   - FYI https://github.com/flutter/flutter/issues/71735.
