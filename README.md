@@ -60,6 +60,8 @@ class _MyAppState extends State<MyApp> {
 }
 ```
 
+Try running the [example](./example) application by cloning the repository.
+
 ## Motivation
 
 https://github.com/flutter/flutter/issues/31713
@@ -83,19 +85,16 @@ You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or 
 - Window movement handling & `NativeView`s positioning.
 - Window resize handling & `NativeView`s sizing.
 - Windows 8 & higher support.
-- Interractions with the `NativeView` e.g. mouse clicks or keyboard presses.
+- Interractions with the `NativeView` e.g. mouse clicks or keyboard key presses.
 
 #### Under Progress
 
 - Finalized API.
-- Fixing airspace issues.
-- Customizable hit-test.
+- Customizable hit-test i.e. optional interactability with the `NativeView`s.
+- Semi transparent `Widget`s on top of `NativeView`.
 - Proper disposing of `HWND` and instances.
-- Efficiently detecting changes in the global positioning of the "cutout".
 - Removing Win32 specific types & `ifdef` magic.
-- Not sending `Color`s in a `flutter::EncodableMap` ¯\\\_(ツ)\_/¯.
-- Currently this setup is using `WS_EX_LAYERED` & `SetLayeredWindowAttributes` & it's not good.
-  - Ideally, flutter view should be made transparent instead of masking a color to show the `native_view`s underneath (but I'm not talented enough to solve that yet).
+- Ideally, flutter view should be made transparent instead of masking a color to show the `native_view`s underneath (but I'm not talented enough to solve that yet).
   - Right now, I'm not sure if subclassing flutter view `HWND` can somehow solve this issue.
   - FYI https://github.com/flutter/flutter/issues/71735.
 
