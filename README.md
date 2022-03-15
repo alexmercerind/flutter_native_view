@@ -70,9 +70,9 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 
 You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind).
 
-### Current Sponsors
+### 💖 Current Sponsors
 
-N/A
+- [Ahmad Arif Aulia Sutarman](https://github.com/damywise)
 
 ## Features
 
