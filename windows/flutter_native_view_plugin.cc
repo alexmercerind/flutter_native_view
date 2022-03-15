@@ -18,28 +18,12 @@
 ///
 #include "include/flutter_native_view/flutter_native_view_plugin.h"
 
-/// |HWND| <-> |int32_t| unsafe conversion.
-#pragma warning(disable : 4302)
-#pragma warning(disable : 4311)
-#pragma warning(disable : 4312)
-
-#include <Windows.h>
 #include <flutter/method_channel.h>
 #include <flutter/method_result_functions.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
-#include "native_view_core.h"
-
 namespace {
-
-static constexpr auto kEnsureInitialized = "EnsureInitialized";
-static constexpr auto kUpdateLayeredColor = "UpdateLayeredColor";
-static constexpr auto kCreateNativeView = "CreateNativeView";
-static constexpr auto kResizeNativeView = "ResizeNativeView";
-static constexpr auto kDestroyNativeView = "DestroyNativeView";
-
-static constexpr auto kQueryNativeViews = "QueryNativeViews";
 
 class FlutterNativeViewPlugin : public flutter::Plugin {
  public:
@@ -54,12 +38,12 @@ class FlutterNativeViewPlugin : public flutter::Plugin {
       const flutter::MethodCall<flutter::EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
+  HWND GetChildWindow();
   HWND GetWindow();
 
   flutter::PluginRegistrarWindows* registrar_ = nullptr;
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_ =
       nullptr;
-  std::unique_ptr<NativeViewCore> native_view_core_ = nullptr;
 };
 
 void FlutterNativeViewPlugin::RegisterWithRegistrar(
@@ -79,8 +63,12 @@ FlutterNativeViewPlugin::FlutterNativeViewPlugin(
   });
 }
 
+HWND FlutterNativeViewPlugin::GetChildWindow() {
+  return registrar_->GetView()->GetNativeWindow();
+}
+
 HWND FlutterNativeViewPlugin::GetWindow() {
-  return ::GetAncestor(registrar_->GetView()->GetNativeWindow(), GA_ROOT);
+  return ::GetAncestor(GetChildWindow(), GA_ROOT);
 }
 
 FlutterNativeViewPlugin::~FlutterNativeViewPlugin() {}
@@ -88,76 +76,20 @@ FlutterNativeViewPlugin::~FlutterNativeViewPlugin() {}
 void FlutterNativeViewPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (native_view_core_ == nullptr) {
-    native_view_core_ = std::make_unique<NativeViewCore>(
-        GetWindow(), registrar_->GetView()->GetNativeWindow());
+  if (NativeViewCore::GetProcId()) {
+    registrar_->UnregisterTopLevelWindowProcDelegate(
+        NativeViewCore::GetProcId().value());
   }
-  if (method_call.method_name().compare(kEnsureInitialized) == 0) {
-    auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
-    auto layered_color = std::get<flutter::EncodableMap>(
-        arguments[flutter::EncodableValue("layered_color")]);
-    auto R = std::get<int32_t>(layered_color[flutter::EncodableValue("R")]);
-    auto G = std::get<int32_t>(layered_color[flutter::EncodableValue("G")]);
-    auto B = std::get<int32_t>(layered_color[flutter::EncodableValue("B")]);
-    auto initialization_type =
-        native_view_core_->EnsureInitialized(RGB(R, G, B));
-    registrar_->RegisterTopLevelWindowProcDelegate(
-        [=](HWND hwnd, UINT message, WPARAM wparam,
-            LPARAM lparam) -> std::optional<HRESULT> {
-          return native_view_core_->WindowProc(hwnd, message, wparam, lparam);
-        });
-    result->Success(flutter::EncodableValue(initialization_type));
-  } else if (method_call.method_name().compare(kUpdateLayeredColor) == 0) {
-    auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
-    auto layered_color = std::get<flutter::EncodableMap>(
-        arguments[flutter::EncodableValue("layered_color")]);
-    auto R = std::get<int32_t>(layered_color[flutter::EncodableValue("R")]);
-    auto G = std::get<int32_t>(layered_color[flutter::EncodableValue("G")]);
-    auto B = std::get<int32_t>(layered_color[flutter::EncodableValue("B")]);
-    native_view_core_->UpdateLayeredColor(RGB(R, G, B));
-    result->Success(flutter::EncodableValue(nullptr));
-  } else if (method_call.method_name().compare(kCreateNativeView) == 0) {
-    auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
-    auto window_handle =
-        std::get<int32_t>(arguments[flutter::EncodableValue("window_handle")]);
-    auto rect_map = std::get<flutter::EncodableMap>(
-        arguments[flutter::EncodableValue("rect")]);
-    auto left = std::get<int32_t>(rect_map[flutter::EncodableValue("left")]);
-    auto top = std::get<int32_t>(rect_map[flutter::EncodableValue("top")]);
-    auto right = std::get<int32_t>(rect_map[flutter::EncodableValue("right")]);
-    auto bottom =
-        std::get<int32_t>(rect_map[flutter::EncodableValue("bottom")]);
-    auto device_pixel_ratio = std::get<double>(
-        arguments[flutter::EncodableValue("device_pixel_ratio")]);
-    RECT rect;
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
-    native_view_core_->CreateNativeView((HWND)window_handle, rect,
-                                        device_pixel_ratio);
-    result->Success(flutter::EncodableValue(nullptr));
-  } else if (method_call.method_name().compare(kResizeNativeView) == 0) {
-    auto arguments = std::get<flutter::EncodableMap>(*method_call.arguments());
-    auto window_handle =
-        std::get<int32_t>(arguments[flutter::EncodableValue("window_handle")]);
-    auto rect_map = std::get<flutter::EncodableMap>(
-        arguments[flutter::EncodableValue("rect")]);
-    auto left = std::get<int32_t>(rect_map[flutter::EncodableValue("left")]);
-    auto top = std::get<int32_t>(rect_map[flutter::EncodableValue("top")]);
-    auto right = std::get<int32_t>(rect_map[flutter::EncodableValue("right")]);
-    auto bottom =
-        std::get<int32_t>(rect_map[flutter::EncodableValue("bottom")]);
-    RECT rect;
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
-    native_view_core_->ResizeNativeView((HWND)window_handle, rect);
-    result->Success(flutter::EncodableValue(nullptr));
-  } else {
-    result->NotImplemented();
+  NativeViewCore::SetInstance(std::move(
+      std::make_unique<NativeViewCore>(GetWindow(), GetChildWindow())));
+  if (NativeViewCore::GetProcId()) {
+    NativeViewCore::SetProcId(registrar_->RegisterTopLevelWindowProcDelegate(
+        [=](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+          return NativeViewCore::GetInstance()->WindowProc(hwnd, message,
+                                                           wparam, lparam);
+        }));
   }
+  result->Success(flutter::EncodableValue(nullptr));
 }
 
 }  // namespace

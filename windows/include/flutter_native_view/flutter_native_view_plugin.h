@@ -18,8 +18,9 @@
 ///
 #ifndef FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
 #define FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
-
 #include <flutter_plugin_registrar.h>
+
+#include "native_view_core.h"
 
 #ifdef FLUTTER_PLUGIN_IMPL
 #define FLUTTER_PLUGIN_EXPORT __declspec(dllexport)
