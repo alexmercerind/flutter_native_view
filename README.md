@@ -66,6 +66,14 @@ https://github.com/flutter/flutter/issues/31713
 
 Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 
+## Sponsor
+
+You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind).
+
+### Current Sponsors
+
+N/A
+
 ## Features
 
 #### Currently Implemented
@@ -85,7 +93,7 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 - Proper disposing of `HWND` and instances.
 - Efficiently detecting changes in the global positioning of the "cutout".
 - Removing Win32 specific types & `ifdef` magic.
-- Not sending `Color`s in a `flutter::EncodableMap` ¯\\_(ツ)\_/¯.
+- Not sending `Color`s in a `flutter::EncodableMap` ¯\\\_(ツ)\_/¯.
 - Currently this setup is using `WS_EX_LAYERED` & `SetLayeredWindowAttributes` & it's not good.
   - Ideally, flutter view should be made transparent instead of masking a color to show the `native_view`s underneath (but I'm not talented enough to solve that yet).
   - Right now, I'm not sure if subclassing flutter view `HWND` can somehow solve this issue.
