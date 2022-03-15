@@ -16,8 +16,8 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-import 'dart:ffi';
 import 'dart:io';
+import 'dart:ffi';
 import 'package:path/path.dart' as path;
 
 abstract class FFI {
@@ -25,6 +25,7 @@ abstract class FFI {
   static late final void Function(int) nativeViewCoreUpdateLayeredColor;
   static late final void Function(int, int, int, int, int, double)
       nativeViewCoreCreateNativeView;
+  static late final void Function(int) nativeViewCoreDisposeNativeView;
   static late final void Function(int, int, int, int, int)
       nativeViewCoreResizeNativeView;
 
@@ -45,6 +46,9 @@ abstract class FFI {
         Void Function(Uint32, Uint32, Uint32, Uint32, Uint32, Double),
         void Function(
             int, int, int, int, int, double)>('NativeViewCoreCreateNativeView');
+    nativeViewCoreDisposeNativeView =
+        library.lookupFunction<Void Function(Uint32), void Function(int)>(
+            'NativeViewCoreDisposeNativeView');
     nativeViewCoreResizeNativeView = library.lookupFunction<
         Void Function(Uint32, Uint32, Uint32, Uint32, Uint32),
         void Function(

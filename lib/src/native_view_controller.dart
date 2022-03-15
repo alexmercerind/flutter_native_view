@@ -58,6 +58,7 @@ class NativeViewController {
 
   /// Disposes the [NativeViewController] instance & releases the resources.
   Future<void> dispose() {
+    FFI.nativeViewCoreDisposeNativeView(handle);
     return resizeNativeViewStreamSubscription.cancel();
   }
 
