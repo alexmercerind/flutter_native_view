@@ -36,23 +36,11 @@ class _MyAppState extends State<MyApp> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    // TODO: Handle scrolling & positioning of child HWNDs automatically.
-    controller.addListener(() {
-      for (final controller in controllers) {
-        controller.refresh();
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('flutter_native_view'),
-          elevation: 0.0,
         ),
         body: ListView(
           controller: controller,

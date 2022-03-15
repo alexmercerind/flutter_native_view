@@ -21,6 +21,49 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_native_view/src/value_notifiers.dart';
 import 'package:flutter_native_view/src/native_view_controller.dart';
 
+/// NativeView
+/// ----------
+/// Create a [NativeView] & pass [NativeViewController] as controller to render it's window.
+///
+/// ```dart
+/// class _MyAppState extends State<MyApp> {
+///   final controller = NativeViewController(
+///     handle: FindWindow(nullptr, 'VLC Media Player'.toNativeUtf16()));
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return MaterialApp(
+///       home: Scaffold(
+///         body: Center(
+///             child: Padding(
+///               padding: const EdgeInsets.all(24.0),
+///               child: Stack(
+///                 children: [
+///                   LayoutBuilder(
+///                     builder: (context, constraints) => NativeView(
+///                       // Pass [NativeViewController] to render the window.
+///                       controller: controller,
+///                       width: constraints.maxWidth,
+///                       height: constraints.maxHeight,
+///                     ),
+///                   ),
+///                   Padding(
+///                     padding: const EdgeInsets.all(16.0),
+///                     child: FloatingActionButton(
+///                       onPressed: () {},
+///                       child: const Icon(Icons.edit),
+///                     ),
+///                   ),
+///                 ],
+///               ),
+///             ),
+///           ),
+///         ),
+///       ),
+///     );
+///   }
+/// }
+/// ```
 class NativeView extends StatefulWidget {
   final NativeViewController controller;
   final double width;
@@ -41,9 +84,11 @@ class _NativeViewState extends State<NativeView>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      await widget.controller.createNativeView();
-    });
+    WidgetsBinding.instance!.addPostFrameCallback(
+      (_) {
+        widget.controller.createNativeView();
+      },
+    );
   }
 
   @override

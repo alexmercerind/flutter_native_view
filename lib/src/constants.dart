@@ -18,13 +18,5 @@
 
 import 'package:flutter/widgets.dart';
 
-const String kEnsureInitialized = 'EnsureInitialized';
-const String kUpdateLayeredColor = 'UpdateLayeredColor';
-const String kCreateNativeView = 'CreateNativeView';
-const String kResizeNativeView = 'ResizeNativeView';
-const String kDestroyNativeView = 'DestroyNativeView';
-
-const String kQueryNativeViews = 'QueryNativeViews';
-
-const int kDefaultInitializationType = 1;
+const String kMethodChannelName = 'flutter_native_view';
 const Color kDefaultLayeredColor = Color(0xFF000000);

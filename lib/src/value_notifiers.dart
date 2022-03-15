@@ -18,13 +18,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_native_view/src/constants.dart';
 
-/// Keeps the initialization techinique used by the plugin to create the punch hole in the window.
-/// * `1` refers to the older `WS_EX_LAYERED` and `SetLayeredWindowAttributes` setup to mask the [layeredColor].
-final ValueNotifier<int> initializationTypeNotifier =
-    ValueNotifier(kDefaultInitializationType);
-
-/// [layeredColor] defines the color which is masked to be transparent inside the window.
+/// [layeredColorNotifier] defines the color which is masked to be transparent inside the window.
 /// Exposing this in client API is important since in certain instances, user might wanna change the color e.g.
-/// a UI constraint or the masked color already being present in the window somewhere.
+/// a UI constraint or the masked color already being present in the window somewhere else.
 final ValueNotifier<Color> layeredColorNotifier =
     ValueNotifier(kDefaultLayeredColor);

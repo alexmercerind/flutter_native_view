@@ -16,41 +16,24 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_native_view/src/channel.dart';
+import 'package:flutter_native_view/src/ffi.dart';
 import 'package:flutter_native_view/src/constants.dart';
-import 'package:flutter_native_view/src/value_notifiers.dart';
 
 class FlutterNativeView {
   static Future<void> ensureInitialized({
     Color layeredColor = kDefaultLayeredColor,
   }) async {
-    initializationTypeNotifier.value = await channel.invokeMethod(
-      kEnsureInitialized,
-      {
-        'layered_color': {
-          'R': layeredColor.red,
-          'G': layeredColor.green,
-          'B': layeredColor.blue,
-        },
-      },
-    );
+    await const MethodChannel(kMethodChannelName).invokeMethod('');
+    FFI.ensureInitialized();
+    FFI.nativeViewCoreEnsureInitialized(layeredColor.value);
   }
 
-  static Future<void> updateLayeredColor({
+  static void updateLayeredColor({
     Color layeredColor = kDefaultLayeredColor,
-  }) async {
-    layeredColorNotifier.value = layeredColor;
-    await channel.invokeMethod(
-      kUpdateLayeredColor,
-      {
-        'layered_color': {
-          'R': layeredColor.red,
-          'G': layeredColor.green,
-          'B': layeredColor.blue,
-        },
-      },
-    );
+  }) {
+    FFI.nativeViewCoreUpdateLayeredColor(layeredColor.value);
   }
 }

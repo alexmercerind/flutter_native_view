@@ -16,65 +16,71 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-import 'dart:async';
 import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_native_view/src/channel.dart';
-import 'package:flutter_native_view/src/constants.dart';
+import 'package:flutter_native_view/src/ffi.dart';
 import 'package:flutter_native_view/src/widgets.dart';
 
+/// [NativeViewController] creates a new controller to control an instance of [NativeView].
+///
+/// ```dart
+/// final controller = NativeViewController(
+///   handle: FindWindow(
+///     nullptr,
+///     'VLC Media Player'.toNativeUtf16(),
+///   ),
+/// );
+/// ```
+///
+/// Pass the `HWND` of the window as [handle].
+/// In above example, we are using [FindWindow] from `package:win32` to discover handle of the `VLC Media Player`'s window.
+///
 class NativeViewController {
   final int handle;
   final GlobalKey rendererKey = GlobalKey();
   final GlobalKey painterKey = GlobalKey();
 
-  // [StreamController] to avoid race & send [Rect]s synchronously.
+  /// [StreamController] to avoid race & send [Rect]s synchronously.
   final StreamController<void> resizeNativeViewStreamController =
       StreamController<void>();
   late final StreamSubscription<void> resizeNativeViewStreamSubscription;
 
   NativeViewController({required this.handle}) {
-    kNativeViewControllers[handle] = this;
     resizeNativeViewStreamSubscription =
-        resizeNativeViewStreamController.stream.listen((event) async {
-      await refresh();
-    });
-  }
-
-  Future<void> dispose() {
-    kNativeViewControllers.remove(handle);
-    return resizeNativeViewStreamSubscription.cancel();
-  }
-
-  Future<void> createNativeView() async {
-    await channel.invokeMethod(
-      kCreateNativeView,
-      {
-        'window_handle': handle,
-        'rect': {
-          'left': (painterKey.rect!.left * window.devicePixelRatio).toInt(),
-          'top': (painterKey.rect!.top * window.devicePixelRatio).toInt(),
-          'right': (painterKey.rect!.right * window.devicePixelRatio).toInt(),
-          'bottom': (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
-        },
-        'device_pixel_ratio': window.devicePixelRatio,
+        resizeNativeViewStreamController.stream.listen(
+      (event) {
+        refresh();
       },
     );
   }
 
-  Future<void> refresh() async {
-    await channel.invokeMethod(
-      kResizeNativeView,
-      {
-        'window_handle': handle,
-        'rect': {
-          'left': (painterKey.rect!.left * window.devicePixelRatio).toInt(),
-          'top': (painterKey.rect!.top * window.devicePixelRatio).toInt(),
-          'right': (painterKey.rect!.right * window.devicePixelRatio).toInt(),
-          'bottom': (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
-        },
-      },
+  /// Disposes the [NativeViewController] instance & releases the resources.
+  Future<void> dispose() {
+    return resizeNativeViewStreamSubscription.cancel();
+  }
+
+  /// Creates a new [NativeView].
+  void createNativeView() {
+    FFI.nativeViewCoreCreateNativeView(
+      handle,
+      (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
+      window.devicePixelRatio,
+    );
+  }
+
+  /// Causes [NativeView] associated with this [NativeViewController] to redraw & update its positioning.
+  void refresh() {
+    FFI.nativeViewCoreResizeNativeView(
+      handle,
+      (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
     );
     rendererKey.currentState!.setState(() {});
   }
