@@ -17,8 +17,12 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
+#ifndef NATIVE_VIEW_CORE_H_
+#define NATIVE_VIEW_CORE_H_
+
 #include <Windows.h>
 
+#include <cmath>
 #include <functional>
 #include <map>
 #include <optional>
@@ -26,21 +30,23 @@
 
 class NativeViewCore {
  public:
-  std::map<HWND, RECT> native_views() const { return native_views_; }
+  static NativeViewCore* GetInstance();
+
+  static void SetInstance(std::unique_ptr<NativeViewCore> instance);
+
+  static std::optional<int32_t> GetProcId();
+
+  static void SetProcId(int32_t);
 
   NativeViewCore(HWND window, HWND child_window);
 
-  int32_t EnsureInitialized(COLORREF layered_color);
+  void EnsureInitialized(COLORREF layered_color);
 
   void UpdateLayeredColor(COLORREF layered_color);
 
   void CreateNativeView(HWND native_view, RECT rect, double device_pixel_ratio);
 
   void ResizeNativeView(HWND native_view, RECT rect);
-
-  void SetQueryNativeViewsCallback(std::function<void()> callback);
-
-  void QueryNativeViewsUpdate(std::map<HWND, RECT> native_views);
 
   std::optional<HRESULT> WindowProc(HWND hwnd, UINT message, WPARAM wparam,
                                     LPARAM lparam);
@@ -53,8 +59,9 @@ class NativeViewCore {
   HWND window_ = nullptr;
   HWND child_window_ = nullptr;
   double device_pixel_ratio_ = 1.0;
-  // Not using |unordered_map| to keep HWND keys sorted for
-  // |UpdateNativeViewsCallback|.
   std::map<HWND, RECT> native_views_ = {};
-  std::function<void()> query_native_view_callback_ = []() -> void {};
+  static std::unique_ptr<NativeViewCore> instance_;
+  static std::optional<int32_t> proc_id_;
 };
+
+#endif

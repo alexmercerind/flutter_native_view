@@ -19,18 +19,25 @@
 
 #include "native_view_core.h"
 
-#include <cmath>
+NativeViewCore* NativeViewCore::GetInstance() { return instance_.get(); }
+
+void NativeViewCore::SetInstance(std::unique_ptr<NativeViewCore> instance) {
+  instance_ = std::move(instance);
+}
+
+std::optional<int32_t> NativeViewCore::GetProcId() { return proc_id_; }
+
+void NativeViewCore::SetProcId(int32_t proc_id) { proc_id_ = proc_id; }
 
 NativeViewCore::NativeViewCore(HWND window, HWND child_window)
     : window_(window), child_window_(child_window) {}
 
-int NativeViewCore::EnsureInitialized(COLORREF layered_color) {
+void NativeViewCore::EnsureInitialized(COLORREF layered_color) {
   // Use |WS_EX_LAYERED| with layered color defined by |layered_color| on
   // older Windows versions.
   auto style = ::GetWindowLongPtr(child_window_, GWL_EXSTYLE);
   ::SetWindowLongPtr(child_window_, GWL_EXSTYLE, style | WS_EX_LAYERED);
   ::SetLayeredWindowAttributes(child_window_, layered_color, 0, LWA_COLORKEY);
-  return 1;
 }
 
 void NativeViewCore::UpdateLayeredColor(COLORREF layered_color) {
@@ -53,25 +60,6 @@ void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
   ::SetWindowPos(native_view, child_window_, global_rect.left, global_rect.top,
                  global_rect.right - global_rect.left,
                  global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
-}
-
-void NativeViewCore::SetQueryNativeViewsCallback(
-    std::function<void()> callback) {
-  query_native_view_callback_ = callback;
-}
-
-void NativeViewCore::QueryNativeViewsUpdate(std::map<HWND, RECT> native_views) {
-  for (auto& [native_view, rect] : native_views) {
-    // Update local |native_views_|.
-    native_views_[native_view] = rect;
-    auto global_rect =
-        GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
-    // Move the |native_view|, since this happens when the size of the viewport
-    // is likely changed, thus redraw |native_view| in |MoveWindow| call.
-    ::SetWindowPos(native_view, child_window_, global_rect.left,
-                   global_rect.top, global_rect.right - global_rect.left,
-                   global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
-  }
 }
 
 void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
@@ -99,8 +87,10 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
                        global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
       }
       break;
+    case WM_SIZE:
     case WM_MOVE:
     case WM_MOVING:
+    case WM_SYSCOMMAND:
     case WM_WINDOWPOSCHANGED:
       for (const auto& [native_view, rect] : native_views_) {
         auto global_rect =
@@ -111,10 +101,6 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
                      global_rect.right - global_rect.left,
                      global_rect.bottom - global_rect.top, FALSE);
       }
-      break;
-    case WM_SIZE:
-    case WM_SYSCOMMAND:
-      query_native_view_callback_();
       break;
     default:
       break;
@@ -141,3 +127,7 @@ RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
 }
 
 NativeViewCore::~NativeViewCore() {}
+
+std::unique_ptr<NativeViewCore> NativeViewCore::instance_ = nullptr;
+
+std::optional<int32_t> NativeViewCore::proc_id_ = std::nullopt;
