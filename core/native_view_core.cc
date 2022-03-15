@@ -107,6 +107,12 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
                      global_rect.bottom - global_rect.top, FALSE);
       }
       break;
+    case WM_CLOSE:
+      for (const auto& [native_view, rect] : native_views_) {
+        ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+      }
+      native_views_.clear();
+      break;
     default:
       break;
   }
