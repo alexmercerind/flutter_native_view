@@ -20,11 +20,13 @@
 #include "ffi_api.h"
 
 void NativeViewCoreEnsureInitialized(uint32_t layered_color) {
-  NativeViewCore::GetInstance()->EnsureInitialized(layered_color);
+  flutternativeview::NativeViewCore::GetInstance()->EnsureInitialized(
+      layered_color);
 }
 
 void NativeViewCoreUpdateLayeredColor(uint32_t layered_color) {
-  NativeViewCore::GetInstance()->UpdateLayeredColor(layered_color);
+  flutternativeview::NativeViewCore::GetInstance()->UpdateLayeredColor(
+      layered_color);
 }
 
 void NativeViewCoreCreateNativeView(uint32_t native_view, uint32_t left,
@@ -36,12 +38,12 @@ void NativeViewCoreCreateNativeView(uint32_t native_view, uint32_t left,
   rect.top = top;
   rect.right = right;
   rect.bottom = bottom;
-  NativeViewCore::GetInstance()->CreateNativeView(
+  flutternativeview::NativeViewCore::GetInstance()->CreateNativeView(
       reinterpret_cast<HWND>(native_view), rect, device_pixel_ratio);
 }
 
 void NativeViewCoreDisposeNativeView(uint32_t native_view) {
-  NativeViewCore::GetInstance()->DisposeNativeView(
+  flutternativeview::NativeViewCore::GetInstance()->DisposeNativeView(
       reinterpret_cast<HWND>(native_view));
 }
 
@@ -53,6 +55,6 @@ void NativeViewCoreResizeNativeView(uint32_t native_view, uint32_t left,
   rect.top = top;
   rect.right = right;
   rect.bottom = bottom;
-  NativeViewCore::GetInstance()->ResizeNativeView(
+  flutternativeview::NativeViewCore::GetInstance()->ResizeNativeView(
       reinterpret_cast<HWND>(native_view), rect);
 }

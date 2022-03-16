@@ -28,6 +28,11 @@
 #include <optional>
 #include <vector>
 
+#include "native_view_container.h"
+#include "utils.h"
+
+namespace flutternativeview {
+
 class NativeViewCore {
  public:
   static NativeViewCore* GetInstance();
@@ -60,10 +65,14 @@ class NativeViewCore {
 
   HWND window_ = nullptr;
   HWND child_window_ = nullptr;
+  HWND native_view_container_ = nullptr;
   double device_pixel_ratio_ = 1.0;
+  int32_t title_bar_height_ = 0;
   std::map<HWND, RECT> native_views_ = {};
   static std::unique_ptr<NativeViewCore> instance_;
   static std::optional<int32_t> proc_id_;
 };
+
+}  // namespace flutternativeview
 
 #endif
