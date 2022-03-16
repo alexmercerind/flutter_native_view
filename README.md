@@ -14,7 +14,7 @@ On the other hand, a window created by the client code itself e.g. a webview ins
 - If client code decides to create an `HWND` through platform channel interface, they can use the setup present in [`core`](https://github.com/alexmercerind/flutter_native_view/tree/master/core) to embed a window.
 - Since `dart:ffi` is very capable now, one can pass the `HWND` directly as `int` of the window they created using `dart:ffi` or [`win32`](https://github.com/timsneath/win32) through existing plugin API to embed it.
 
-https://user-images.githubusercontent.com/28951144/158262120-3fdd89e4-22b7-4fb2-9c99-98979df06884.mp4
+https://user-images.githubusercontent.com/28951144/158442361-6970e676-fa0d-430d-8eee-b3d862b2682c.mp4
 
 ## Example
 
@@ -86,13 +86,14 @@ You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or 
 - Window resize handling & `NativeView`s sizing.
 - Windows 8 & higher support.
 - Interractions with the `NativeView` e.g. mouse clicks or keyboard key presses.
+- Proper disposing of `HWND` and instances.
 
 #### Under Progress
 
 - Finalized API.
 - Customizable hit-test i.e. optional interactability with the `NativeView`s.
 - Semi transparent `Widget`s on top of `NativeView`.
-- Proper disposing of `HWND` and instances.
+- Efficiently detecting changes in global positioning of `NativeView` `Widget`s.
 - Removing Win32 specific types & `ifdef` magic.
 - Defining z-order for each `NativeViewController`.
 - Ideally, flutter view should be made transparent instead of masking a color to show the `native_view`s underneath (but I'm not talented enough to solve that yet).
@@ -106,8 +107,6 @@ The plugin currently works on following platforms:
 | Platform | State   |
 | -------- | ------- |
 | Windows  | Working |
-| Linux    | Not Yet |
-| macOS    | Not Yet |
 
 ## License
 
