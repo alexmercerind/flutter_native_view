@@ -1,13 +1,13 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
+import 'package:win32/win32.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_native_view/flutter_native_view.dart';
-import 'package:win32/win32.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeView.ensureInitialized();
+  await FlutterNativeView.ensureInitialized();
   runApp(const MyApp());
 }
 
