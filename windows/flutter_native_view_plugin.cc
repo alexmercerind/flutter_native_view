@@ -76,18 +76,20 @@ FlutterNativeViewPlugin::~FlutterNativeViewPlugin() {}
 void FlutterNativeViewPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (NativeViewCore::GetProcId()) {
+  if (flutternativeview::NativeViewCore::GetProcId()) {
     registrar_->UnregisterTopLevelWindowProcDelegate(
-        NativeViewCore::GetProcId().value());
+        flutternativeview::NativeViewCore::GetProcId().value());
   }
-  NativeViewCore::SetInstance(std::move(
-      std::make_unique<NativeViewCore>(GetWindow(), GetChildWindow())));
-  if (NativeViewCore::GetProcId()) {
-    NativeViewCore::SetProcId(registrar_->RegisterTopLevelWindowProcDelegate(
-        [=](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
-          return NativeViewCore::GetInstance()->WindowProc(hwnd, message,
-                                                           wparam, lparam);
-        }));
+  flutternativeview::NativeViewCore::SetInstance(
+      std::move(std::make_unique<flutternativeview::NativeViewCore>(
+          GetWindow(), GetChildWindow())));
+  if (!flutternativeview::NativeViewCore::GetProcId()) {
+    flutternativeview::NativeViewCore::SetProcId(
+        registrar_->RegisterTopLevelWindowProcDelegate(
+            [=](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+              return flutternativeview::NativeViewCore::GetInstance()
+                  ->WindowProc(hwnd, message, wparam, lparam);
+            }));
   }
   result->Success(flutter::EncodableValue(nullptr));
 }

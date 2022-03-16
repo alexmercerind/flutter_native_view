@@ -5,8 +5,10 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 set(PLUGIN_NAME "flutter_native_view_plugin")
 
 add_library(${PLUGIN_NAME} SHARED
+  "../core/utils.cc"
   "../core/ffi_api.cc"
   "../core/native_view_core.cc"
+  "../core/native_view_container.cc"
   "flutter_native_view_plugin.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})

@@ -20,6 +20,7 @@
 #define FLUTTER_PLUGIN_FLUTTER_NATIVE_VIEW_PLUGIN_H_
 #include <flutter_plugin_registrar.h>
 
+#include "native_view_container.h"
 #include "native_view_core.h"
 
 #ifdef FLUTTER_PLUGIN_IMPL
