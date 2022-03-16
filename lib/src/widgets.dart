@@ -99,11 +99,13 @@ class _NativeViewState extends State<NativeView>
       valueListenable: layeredColorNotifier,
       builder: (context, layeredColor, _) {
         widget.controller.resizeNativeViewStreamController.add(null);
-        return Container(
+        return CustomPaint(
           key: widget.controller.painterKey,
-          color: layeredColor,
-          width: widget.width,
-          height: widget.height,
+          painter: const _NativeViewPainter(),
+          size: Size(
+            widget.width,
+            widget.height,
+          ),
         );
       },
     );
@@ -111,6 +113,23 @@ class _NativeViewState extends State<NativeView>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class _NativeViewPainter extends CustomPainter {
+  const _NativeViewPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()
+        ..blendMode = BlendMode.clear
+        ..color = const Color(0x00000000),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
 
 extension GlobalKeyExtension on GlobalKey {
