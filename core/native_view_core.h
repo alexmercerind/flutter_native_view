@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "native_view_container.h"
+#include "native_view_subclass_proc.h"
 #include "utils.h"
 
 namespace flutternativeview {

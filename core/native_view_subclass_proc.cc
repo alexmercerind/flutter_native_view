@@ -17,31 +17,36 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-#ifndef NATIVE_VIEW_CONTAINER_H_
-#define NATIVE_VIEW_CONTAINER_H_
+#include "native_view_subclass_proc.h"
 
-#ifndef DLLEXPORT
-#define DLLEXPORT __declspec(dllexport)
-#endif
-
+#include <Commctrl.h>
 #include <Windows.h>
-
-#include "native_view_core.h"
 
 namespace flutternativeview {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-DLLEXPORT HWND CreateNativeViewContainer();
-
-DLLEXPORT HWND GetNativeViewContainer(HWND window);
-
-#ifdef __cplusplus
+LRESULT NativeViewSubclassProc(HWND window, UINT message, WPARAM wparam,
+                               LPARAM lparam, UINT_PTR subclass_id,
+                               DWORD_PTR ref_data) noexcept {
+  switch (message) {
+    case WM_MOUSELEAVE: {
+      // Gain focus to the |NativeViewCore::window_| again.
+      NativeViewCore::GetInstance()->SetHitTestBehavior(0);
+      break;
+    }
+    default:
+      break;
+  }
+  return ::DefSubclassProc(window, message, wparam, lparam);
 }
-#endif
+
+void SetNativeViewSubclassProc(HWND native_view, HWND window) {
+  TRACKMOUSEEVENT event;
+  event.cbSize = sizeof(event);
+  event.hwndTrack = native_view;
+  event.dwFlags = TME_LEAVE;
+  event.dwHoverTime = 1;
+  ::_TrackMouseEvent(&event);
+  ::SetWindowSubclass(native_view, NativeViewSubclassProc, 69420, NULL);
+}
 
 }  // namespace flutternativeview
-
-#endif

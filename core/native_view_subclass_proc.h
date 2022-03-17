@@ -17,31 +17,16 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-#ifndef NATIVE_VIEW_CONTAINER_H_
-#define NATIVE_VIEW_CONTAINER_H_
-
-#ifndef DLLEXPORT
-#define DLLEXPORT __declspec(dllexport)
-#endif
-
 #include <Windows.h>
 
 #include "native_view_core.h"
 
 namespace flutternativeview {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+LRESULT NativeViewSubclassProc(HWND window, UINT message, WPARAM wparam,
+                               LPARAM lparam, UINT_PTR subclass_id,
+                               DWORD_PTR ref_data) noexcept;
 
-DLLEXPORT HWND CreateNativeViewContainer();
-
-DLLEXPORT HWND GetNativeViewContainer(HWND window);
-
-#ifdef __cplusplus
-}
-#endif
+void SetNativeViewSubclassProc(HWND native_view, HWND window);
 
 }  // namespace flutternativeview
-
-#endif

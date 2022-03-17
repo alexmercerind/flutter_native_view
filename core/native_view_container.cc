@@ -36,11 +36,16 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
       ::PostQuitMessage(0);
       return 0;
     }
+    case WM_MOUSEHOVER: {
+      NativeViewCore::GetInstance()->SetHitTestBehavior(0);
+      break;
+    }
     case WM_SIZE:
     case WM_MOVE:
     case WM_MOVING:
     case WM_ACTIVATE:
     case WM_WINDOWPOSCHANGED: {
+      NativeViewCore::GetInstance()->SetHitTestBehavior(0);
       auto user_data = ::GetWindowLongPtr(window, GWLP_USERDATA);
       if (user_data) {
         ::SetForegroundWindow(reinterpret_cast<HWND>(user_data));
@@ -64,11 +69,10 @@ HWND CreateNativeViewContainer() {
   window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
   window_class.hbrBackground = ::CreateSolidBrush(0);
   ::RegisterClassExW(&window_class);
-  auto window =
-      ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
-                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                     nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-
+  auto window = ::CreateWindowEx(
+      WS_EX_NOACTIVATE, kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr,
+      nullptr, GetModuleHandle(nullptr), nullptr);
   return window;
 }
 
@@ -92,6 +96,13 @@ HWND GetNativeViewContainer(HWND window) {
   taskbar->DeleteTab(native_view_container);
   taskbar->Release();
   ::ShowWindow(native_view_container, SW_SHOWNOACTIVATE);
+  // TODO: Re-gain focus of |window_| properly once mouse reaches out.
+  TRACKMOUSEEVENT event;
+  event.cbSize = sizeof(event);
+  event.hwndTrack = native_view_container;
+  event.dwFlags = TME_HOVER;
+  event.dwHoverTime = 1;
+  ::_TrackMouseEvent(&event);
   ::SetFocus(window);
   return native_view_container;
 }
