@@ -1,6 +1,17 @@
 # [flutter_native_view](https://github.com/alexmercerind/flutter_native_view)
 
-[WORK IN PROGRESS] Embedding native windows into Flutter window. 💙
+Embedding native windows & components directly into Flutter window (no texture, no intermediate buffers, no copying, just performance). 💙
+
+## Notes
+
+In future, I will create natively rendered, performant & less-bundle-sized webview & video playback plugins. Currently I'm only targetting Windows to limit the scope of work.
+
+## Example
+
+Try running the [example](./example) application by cloning the repository.
+
+https://user-images.githubusercontent.com/28951144/158442361-6970e676-fa0d-430d-8eee-b3d862b2682c.mp4
+
 
 ## Description
 
@@ -14,15 +25,6 @@ On the other hand, a window created by the client code itself e.g. a webview ins
 - If client code decides to create an `HWND` through platform channel interface, they can use the setup present in [`core`](https://github.com/alexmercerind/flutter_native_view/tree/master/core) to embed a window.
 - Since `dart:ffi` is very capable now, one can pass the `HWND` directly as `int` of the window they created using `dart:ffi` or [`win32`](https://github.com/timsneath/win32) through existing plugin API to embed it.
 
-## Example
-
-Try running the [example](./example) application by cloning the repository.
-
-https://user-images.githubusercontent.com/28951144/158442361-6970e676-fa0d-430d-8eee-b3d862b2682c.mp4
-
-## Notes
-
-In future, I will create natively rendered, performant & less-bundle-sized webview & video playback plugins. Currently I'm only targetting Windows to limit the scope of work.
 
 ## Motivation
 
@@ -32,7 +34,7 @@ Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
 
 ## Sponsor
 
-You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind).
+You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind). It'll be a great motivation for me.
 
 ### 💖 Current Sponsors
 
