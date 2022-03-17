@@ -1,6 +1,6 @@
 # [flutter_native_view](https://github.com/alexmercerind/flutter_native_view)
 
-[WORK IN PROGRESS] Embedding native windows into Flutter window.
+[WORK IN PROGRESS] Embedding native windows into Flutter window. 💙
 
 ## Description
 
@@ -129,7 +129,6 @@ class _MyAppState extends State<MyApp> {
 - Window movement handling & `NativeView`s positioning.
 - Window resize handling & `NativeView`s sizing.
 - Windows 10 & higher support.
-- Interractions with the `NativeView` e.g. mouse clicks or keyboard key presses.
 - Proper disposing of `HWND` and instances.
 - Semi transparent `Widget`s on top of `NativeView`.
 
@@ -137,8 +136,9 @@ class _MyAppState extends State<MyApp> {
 
 - Finalized API.
 - Better maximize/minimize animations.
+- Support for older Windows versions.
 - Customizable hit-test i.e. optional interactability with the `NativeView`s.
-- Efficiently detecting changes in global positioning of `NativeView` `Widget`s.
+- Efficiently redraws of child windows.
 - Removing Win32 specific types & `ifdef` magic.
 - Defining z-order for each `NativeViewController`.
 
