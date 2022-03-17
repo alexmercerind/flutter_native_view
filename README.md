@@ -131,14 +131,14 @@ class _MyAppState extends State<MyApp> {
 - Windows 10 & higher support.
 - Proper disposing of `HWND` and instances.
 - Semi transparent `Widget`s on top of `NativeView`.
+- Customizable hit-test i.e. optional interactability with the `NativeView`s.
 
 #### Under Progress
 
 - Finalized API.
 - Better maximize/minimize animations.
 - Support for older Windows versions.
-- Customizable hit-test i.e. optional interactability with the `NativeView`s.
-- Efficiently redraws of child windows.
+- Efficient redraws of child windows.
 - Removing Win32 specific types & `ifdef` magic.
 - Defining z-order for each `NativeViewController`.
 
