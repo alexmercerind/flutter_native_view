@@ -79,6 +79,7 @@ void FlutterNativeViewPlugin::HandleMethodCall(
   if (flutternativeview::NativeViewCore::GetProcId()) {
     registrar_->UnregisterTopLevelWindowProcDelegate(
         flutternativeview::NativeViewCore::GetProcId().value());
+    flutternativeview::NativeViewCore::SetProcId(std::nullopt);
   }
   flutternativeview::NativeViewCore::SetInstance(
       std::move(std::make_unique<flutternativeview::NativeViewCore>(

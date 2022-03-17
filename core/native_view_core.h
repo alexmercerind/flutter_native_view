@@ -41,7 +41,7 @@ class NativeViewCore {
 
   static std::optional<int32_t> GetProcId();
 
-  static void SetProcId(int32_t proc_id);
+  static void SetProcId(std::optional<int32_t> proc_id);
 
   NativeViewCore(HWND window, HWND child_window);
 

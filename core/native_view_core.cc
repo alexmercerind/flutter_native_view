@@ -29,7 +29,9 @@ void NativeViewCore::SetInstance(std::unique_ptr<NativeViewCore> instance) {
 
 std::optional<int32_t> NativeViewCore::GetProcId() { return proc_id_; }
 
-void NativeViewCore::SetProcId(int32_t proc_id) { proc_id_ = proc_id; }
+void NativeViewCore::SetProcId(std::optional<int32_t> proc_id) {
+  proc_id_ = proc_id;
+}
 
 NativeViewCore::NativeViewCore(HWND window, HWND child_window)
     : window_(window), child_window_(child_window) {}
