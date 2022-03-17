@@ -86,9 +86,9 @@ void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
   // Move the |native_view|, since this happens when the size of the viewport
   // is likely changed, thus redraw is required.
-  ::MoveWindow(native_view, global_rect.left, global_rect.top,
-               global_rect.right - global_rect.left,
-               global_rect.bottom - global_rect.top, TRUE);
+  ::SetWindowPos(native_view, nullptr, global_rect.left, global_rect.top,
+                 global_rect.right - global_rect.left,
+                 global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
 }
 
 std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
@@ -110,6 +110,7 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       switch (wparam) {
         case SIZE_MINIMIZED: {
           ::ShowWindow(native_view_container_, SW_MINIMIZE);
+          RedrawNativeViews();
           break;
         }
         case SIZE_RESTORED: {
@@ -119,6 +120,7 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
         // TODO: Does not look native. Improve message handling in future.
         case SIZE_MAXIMIZED: {
           ::ShowWindow(native_view_container_, SW_MAXIMIZE);
+          RedrawNativeViews();
           break;
         }
         default:
@@ -137,6 +139,7 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
         ::SetWindowPos(native_view_container_, window_, window_rect.left,
                        window_rect.top, window_rect.right - window_rect.left,
                        window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
+        RedrawNativeViews();
       }
       break;
     }
@@ -151,6 +154,15 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       break;
   }
   return std::nullopt;
+}
+
+void NativeViewCore::RedrawNativeViews() {
+  for (const auto& [native_view, rect] : native_views_) {
+    auto global_rect =
+        GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
+    ::RedrawWindow(native_view, 0, 0, RDW_INVALIDATE);
+  }
+  ::RedrawWindow(native_view_container_, 0, 0, RDW_INVALIDATE);
 }
 
 RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,

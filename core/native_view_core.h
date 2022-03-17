@@ -61,6 +61,8 @@ class NativeViewCore {
   ~NativeViewCore();
 
  private:
+  void RedrawNativeViews();
+
   RECT GetGlobalRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
   HWND window_ = nullptr;
