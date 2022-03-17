@@ -19,8 +19,6 @@
 
 #include "native_view_core.h"
 
-#include <iostream>
-
 namespace flutternativeview {
 
 NativeViewCore* NativeViewCore::GetInstance() { return instance_.get(); }
@@ -49,6 +47,7 @@ void NativeViewCore::EnsureInitialized() {
 void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
                                       double device_pixel_ratio) {
   ::SetParent(native_view, native_view_container_);
+  ::ShowWindow(native_view, SWP_NOACTIVATE);
   auto style = ::GetWindowLongPtr(native_view, GWL_STYLE);
   style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
              WS_EX_APPWINDOW);
