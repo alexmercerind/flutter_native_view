@@ -18,6 +18,7 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'package:flutter_native_view/src/ffi.dart';
 import 'package:flutter_native_view/src/native_view_controller.dart';
 
 /// NativeView
@@ -96,12 +97,31 @@ class _NativeViewState extends State<NativeView>
     return _NativeViewHolder(
       key: widget.controller.rendererKey,
       controller: widget.controller,
-      child: CustomPaint(
-        key: widget.controller.painterKey,
-        painter: const _NativeViewPainter(),
-        size: Size(
-          widget.width,
-          widget.height,
+      child: MouseRegion(
+        onEnter: (_) {
+          if (widget.controller.hitTestBehavior ==
+              HitTestBehavior.translucent) {
+            FFI.nativeViewCoreSetHitTestBehavior(1);
+            setState(() {
+              widget.controller.entered = true;
+            });
+          }
+        },
+        onExit: (_) {
+          if (widget.controller.hitTestBehavior ==
+              HitTestBehavior.translucent) {
+            setState(() {
+              widget.controller.entered = false;
+            });
+          }
+        },
+        child: CustomPaint(
+          key: widget.controller.painterKey,
+          painter: const _NativeViewPainter(),
+          size: Size(
+            widget.width,
+            widget.height,
+          ),
         ),
       ),
     );

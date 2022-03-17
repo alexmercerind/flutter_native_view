@@ -63,6 +63,7 @@ class NativeViewController {
   late final StreamSubscription<void> resizeNativeViewStreamSubscription;
 
   HitTestBehavior hitTestBehavior;
+  bool entered = false;
 
   NativeViewController({
     required this.handle,
@@ -98,10 +99,8 @@ class NativeViewController {
   ///
   /// NOTE: [HitTestBehavior.deferToChild] does not work.
   ///
-  void SetHitTestBehavior(HitTestBehavior value) {
+  void setHitTestBehavior(HitTestBehavior value) {
     hitTestBehavior = value;
-    FFI.nativeViewCoreSetHitTestBehavior(hitTestBehavior.index - 1);
-    rendererKey.currentState!.setState(() {});
   }
 
   /// Causes [NativeView] associated with this [NativeViewController] to redraw & update its positioning.
@@ -109,13 +108,15 @@ class NativeViewController {
   /// TODO: Fix [force] argument.
   ///
   void refresh({bool force = true}) {
-    FFI.nativeViewCoreResizeNativeView(
-      handle,
-      (painterKey.rect!.left * window.devicePixelRatio).toInt(),
-      (painterKey.rect!.top * window.devicePixelRatio).toInt(),
-      (painterKey.rect!.right * window.devicePixelRatio).toInt(),
-      (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
-    );
-    rendererKey.currentState!.setState(() {});
+    if (!entered) {
+      FFI.nativeViewCoreResizeNativeView(
+        handle,
+        (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+        (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+        (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+        (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
+      );
+      rendererKey.currentState!.setState(() {});
+    }
   }
 }

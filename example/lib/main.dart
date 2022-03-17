@@ -26,6 +26,7 @@ class _MyAppState extends State<MyApp> {
         nullptr,
         'VLC Media Player'.toNativeUtf16(),
       ),
+      hitTestBehavior: HitTestBehavior.translucent,
     ),
     NativeViewController(
       handle: FindWindow(
