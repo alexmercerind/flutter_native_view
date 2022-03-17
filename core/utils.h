@@ -21,8 +21,11 @@
 
 #include <cstdint>
 
+namespace flutternativeview {
+
 RTL_OSVERSIONINFOW GetWindowsVersion();
 
 void SetWindowComposition(HWND window, int32_t accent_state,
                           int32_t gradient_color);
-                          
+
+}  // namespace flutternativeview

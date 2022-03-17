@@ -19,6 +19,10 @@
 
 #include "native_view_container.h"
 
+#include <ShObjIdl.h>
+
+#include "utils.h"
+
 namespace flutternativeview {
 
 constexpr const auto kClassName = L"FLUTTER_NATIVE_VIEW";
@@ -31,6 +35,17 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
     case WM_DESTROY: {
       ::PostQuitMessage(0);
       return 0;
+    }
+    case WM_SIZE:
+    case WM_MOVE:
+    case WM_MOVING:
+    case WM_ACTIVATE:
+    case WM_WINDOWPOSCHANGED: {
+      auto user_data = ::GetWindowLongPtr(window, GWLP_USERDATA);
+      if (user_data) {
+        ::SetForegroundWindow(reinterpret_cast<HWND>(user_data));
+      }
+      break;
     }
     default:
       break;
@@ -47,12 +62,12 @@ HWND CreateNativeViewContainer() {
   window_class.hInstance = 0;
   window_class.lpszClassName = kClassName;
   window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
-  window_class.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+  window_class.hbrBackground = ::CreateSolidBrush(0);
   ::RegisterClassExW(&window_class);
-  auto window = ::CreateWindowEx(
-      WS_EX_TOOLWINDOW, kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr,
-      nullptr, GetModuleHandle(nullptr), nullptr);
+  auto window =
+      ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
+                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                     nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
   return window;
 }
@@ -61,9 +76,21 @@ HWND GetNativeViewContainer(HWND window) {
   RECT window_rect;
   ::GetWindowRect(window, &window_rect);
   auto native_view_container = ::FindWindow(kClassName, kWindowName);
+  flutternativeview::SetWindowComposition(native_view_container, 6, 0);
   ::SetWindowPos(native_view_container, window, window_rect.left,
                  window_rect.top, window_rect.right - window_rect.left,
                  window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
+  ::SetWindowLongPtr(native_view_container, GWLP_USERDATA,
+                     reinterpret_cast<LONG>(window));
+  // Remove taskbar entry.
+  // Using |ITaskbarList3| available on Windows 7 or higher. Modification to
+  // |native_view_container|'s |GWL_STYLE| OR |GWL_EX_STYLE| made underlying
+  // |HWND| obvious to user.
+  ITaskbarList3* taskbar = nullptr;
+  ::CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER,
+                     IID_PPV_ARGS(&taskbar));
+  taskbar->DeleteTab(native_view_container);
+  taskbar->Release();
   ::ShowWindow(native_view_container, SW_SHOWNOACTIVATE);
   ::SetFocus(window);
   return native_view_container;

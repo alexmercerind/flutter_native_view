@@ -41,17 +41,17 @@ class NativeViewCore {
 
   static std::optional<int32_t> GetProcId();
 
-  static void SetProcId(int32_t);
+  static void SetProcId(int32_t proc_id);
 
   NativeViewCore(HWND window, HWND child_window);
 
-  void EnsureInitialized(COLORREF layered_color);
-
-  void UpdateLayeredColor(COLORREF layered_color);
+  void EnsureInitialized();
 
   void CreateNativeView(HWND native_view, RECT rect, double device_pixel_ratio);
 
   void DisposeNativeView(HWND native_view);
+
+  void SetHitTestBehavior(int32_t hittest_behavior);
 
   void ResizeNativeView(HWND native_view, RECT rect);
 

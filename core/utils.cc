@@ -22,6 +22,8 @@
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "comctl32.lib")
 
+namespace flutternativeview {
+
 typedef enum _WINDOWCOMPOSITIONATTRIB {
   WCA_UNDEFINED = 0,
   WCA_NCRENDERING_ENABLED = 1,
@@ -108,6 +110,7 @@ RTL_OSVERSIONINFOW GetWindowsVersion() {
 
 void SetWindowComposition(HWND window, int32_t accent_state,
                           int32_t gradient_color) {
+  // TODO: Look for a better available API.
   if (GetWindowsVersion().dwBuildNumber >= 18362) {
     if (!g_set_window_composition_attribute_initialized) {
       auto user32 = ::GetModuleHandleA("user32.dll");
@@ -129,3 +132,5 @@ void SetWindowComposition(HWND window, int32_t accent_state,
     g_set_window_composition_attribute(window, &data);
   }
 }
+
+}  // namespace flutternativeview

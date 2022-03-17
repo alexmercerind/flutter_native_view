@@ -19,14 +19,8 @@
 
 #include "ffi_api.h"
 
-void NativeViewCoreEnsureInitialized(uint32_t layered_color) {
-  flutternativeview::NativeViewCore::GetInstance()->EnsureInitialized(
-      layered_color);
-}
-
-void NativeViewCoreUpdateLayeredColor(uint32_t layered_color) {
-  flutternativeview::NativeViewCore::GetInstance()->UpdateLayeredColor(
-      layered_color);
+void NativeViewCoreEnsureInitialized() {
+  flutternativeview::NativeViewCore::GetInstance()->EnsureInitialized();
 }
 
 void NativeViewCoreCreateNativeView(uint32_t native_view, uint32_t left,
@@ -45,6 +39,10 @@ void NativeViewCoreCreateNativeView(uint32_t native_view, uint32_t left,
 void NativeViewCoreDisposeNativeView(uint32_t native_view) {
   flutternativeview::NativeViewCore::GetInstance()->DisposeNativeView(
       reinterpret_cast<HWND>(native_view));
+}
+void NativeViewCoreSetHitTestBehavior(uint32_t hittest_behavior) {
+  flutternativeview::NativeViewCore::GetInstance()->SetHitTestBehavior(
+      hittest_behavior);
 }
 
 void NativeViewCoreResizeNativeView(uint32_t native_view, uint32_t left,

@@ -20,10 +20,6 @@
 #ifndef FFI_API_H_
 #define FFI_API_H_
 
-#pragma warning(disable : 4302)
-#pragma warning(disable : 4311)
-#pragma warning(disable : 4312)
-
 #include "native_view_core.h"
 
 #ifndef DLLEXPORT
@@ -34,9 +30,7 @@
 extern "C" {
 #endif
 
-DLLEXPORT void NativeViewCoreEnsureInitialized(uint32_t layered_color);
-
-DLLEXPORT void NativeViewCoreUpdateLayeredColor(uint32_t layered_color);
+DLLEXPORT void NativeViewCoreEnsureInitialized();
 
 DLLEXPORT void NativeViewCoreCreateNativeView(uint32_t native_view,
                                               uint32_t left, uint32_t top,
@@ -44,6 +38,8 @@ DLLEXPORT void NativeViewCoreCreateNativeView(uint32_t native_view,
                                               double device_pixel_ratio);
 
 DLLEXPORT void NativeViewCoreDisposeNativeView(uint32_t native_view);
+
+DLLEXPORT void NativeViewCoreSetHitTestBehavior(uint32_t hittest_behavior);
 
 DLLEXPORT void NativeViewCoreResizeNativeView(uint32_t native_view,
                                               uint32_t left, uint32_t top,

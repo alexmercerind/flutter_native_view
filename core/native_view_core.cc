@@ -19,6 +19,8 @@
 
 #include "native_view_core.h"
 
+#include <iostream>
+
 namespace flutternativeview {
 
 NativeViewCore* NativeViewCore::GetInstance() { return instance_.get(); }
@@ -34,18 +36,14 @@ void NativeViewCore::SetProcId(int32_t proc_id) { proc_id_ = proc_id; }
 NativeViewCore::NativeViewCore(HWND window, HWND child_window)
     : window_(window), child_window_(child_window) {}
 
-void NativeViewCore::EnsureInitialized(COLORREF layered_color) {
-  SetWindowComposition(window_, 6, 0);
+void NativeViewCore::EnsureInitialized() {
+  flutternativeview::SetWindowComposition(window_, 6, 0);
   TITLEBARINFOEX title_bar_info;
   title_bar_info.cbSize = sizeof(TITLEBARINFOEX);
   ::SendMessage(window_, WM_GETTITLEBARINFOEX, 0, (LPARAM)&title_bar_info);
   title_bar_height_ =
       title_bar_info.rcTitleBar.bottom - title_bar_info.rcTitleBar.top;
   native_view_container_ = flutternativeview::GetNativeViewContainer(window_);
-}
-
-void NativeViewCore::UpdateLayeredColor(COLORREF layered_color) {
-  ::SetLayeredWindowAttributes(window_, layered_color, 0, LWA_COLORKEY);
 }
 
 void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
@@ -69,6 +67,17 @@ void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
 void NativeViewCore::DisposeNativeView(HWND native_view) {
   ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
   native_views_.erase(native_view);
+}
+
+void NativeViewCore::SetHitTestBehavior(int32_t hittest_behavior) {
+  hittest_behavior;
+  LONG ex_style = ::GetWindowLong(window_, GWL_EXSTYLE);
+  if (hittest_behavior) {
+    ex_style |= (WS_EX_TRANSPARENT | WS_EX_LAYERED);
+  } else {
+    ex_style &= ~(WS_EX_TRANSPARENT | WS_EX_LAYERED);
+  }
+  ::SetWindowLong(window_, GWL_EXSTYLE, ex_style);
 }
 
 void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
@@ -97,23 +106,37 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       }
       break;
     }
-    case WM_SIZE:
+    case WM_SIZE: {
+      switch (wparam) {
+        case SIZE_MINIMIZED: {
+          ::ShowWindow(native_view_container_, SW_MINIMIZE);
+          break;
+        }
+        case SIZE_RESTORED: {
+          ::ShowWindow(native_view_container_, SW_RESTORE);
+          break;
+        }
+        // TODO: Does not look native. Improve message handling in future.
+        case SIZE_MAXIMIZED: {
+          ::ShowWindow(native_view_container_, SW_MAXIMIZE);
+          break;
+        }
+        default:
+          break;
+      }
+      break;
+    }
     case WM_MOVE:
     case WM_MOVING:
-    case WM_SYSCOMMAND: {
+    case WM_WINDOWPOSCHANGED: {
       RECT window_rect;
       ::GetWindowRect(window_, &window_rect);
-      ::SetWindowPos(native_view_container_, window_, window_rect.left,
-                     window_rect.top, window_rect.right - window_rect.left,
-                     window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
-      for (const auto& [native_view, rect] : native_views_) {
-        auto global_rect =
-            GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
-        // Position the |native_view| at new position if the window was moved.
-        // No redraw is required.
-        ::MoveWindow(native_view, global_rect.left, global_rect.top,
-                     global_rect.right - global_rect.left,
-                     global_rect.bottom - global_rect.top, TRUE);
+      if (window_rect.right - window_rect.left > 0 &&
+          window_rect.bottom - window_rect.top > 0 && window_rect.right > 0 &&
+          window_rect.top > 0 && window_rect.bottom > 0) {
+        ::SetWindowPos(native_view_container_, window_, window_rect.left,
+                       window_rect.top, window_rect.right - window_rect.left,
+                       window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
       }
       break;
     }
