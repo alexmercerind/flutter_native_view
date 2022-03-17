@@ -18,7 +18,6 @@
 
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_native_view/src/value_notifiers.dart';
 import 'package:flutter_native_view/src/native_view_controller.dart';
 
 /// NativeView
@@ -94,25 +93,43 @@ class _NativeViewState extends State<NativeView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ValueListenableBuilder<Color>(
+    return _NativeViewHolder(
       key: widget.controller.rendererKey,
-      valueListenable: layeredColorNotifier,
-      builder: (context, layeredColor, _) {
-        widget.controller.resizeNativeViewStreamController.add(null);
-        return CustomPaint(
-          key: widget.controller.painterKey,
-          painter: const _NativeViewPainter(),
-          size: Size(
-            widget.width,
-            widget.height,
-          ),
-        );
-      },
+      controller: widget.controller,
+      child: CustomPaint(
+        key: widget.controller.painterKey,
+        painter: const _NativeViewPainter(),
+        size: Size(
+          widget.width,
+          widget.height,
+        ),
+      ),
     );
   }
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class _NativeViewHolder extends StatefulWidget {
+  final NativeViewController controller;
+  final Widget child;
+  const _NativeViewHolder({
+    Key? key,
+    required this.controller,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<_NativeViewHolder> createState() => _NativeViewHolderState();
+}
+
+class _NativeViewHolderState extends State<_NativeViewHolder> {
+  @override
+  Widget build(BuildContext context) {
+    widget.controller.resizeNativeViewStreamController.add(null);
+    return widget.child;
+  }
 }
 
 class _NativeViewPainter extends CustomPainter {

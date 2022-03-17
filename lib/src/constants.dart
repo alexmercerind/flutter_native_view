@@ -16,7 +16,7 @@
 /// flutter_native_view. If not, see <https://www.gnu.org/licenses/>.
 ///
 
-import 'package:flutter/widgets.dart';
-
+/// Default method channel name.
+/// Only used for window proc registration.
+///
 const String kMethodChannelName = 'flutter_native_view';
-const Color kDefaultLayeredColor = Color(0xFF000000);

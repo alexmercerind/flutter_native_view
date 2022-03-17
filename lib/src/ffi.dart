@@ -20,12 +20,14 @@ import 'dart:io';
 import 'dart:ffi';
 import 'package:path/path.dart' as path;
 
+/// Lookups for symbols in the bundled dynamic library.
+///
 abstract class FFI {
-  static late final void Function(int) nativeViewCoreEnsureInitialized;
-  static late final void Function(int) nativeViewCoreUpdateLayeredColor;
+  static late final void Function() nativeViewCoreEnsureInitialized;
   static late final void Function(int, int, int, int, int, double)
       nativeViewCoreCreateNativeView;
   static late final void Function(int) nativeViewCoreDisposeNativeView;
+  static late final void Function(int) nativeViewCoreSetHitTestBehavior;
   static late final void Function(int, int, int, int, int)
       nativeViewCoreResizeNativeView;
 
@@ -37,11 +39,8 @@ abstract class FFI {
       ),
     );
     nativeViewCoreEnsureInitialized =
-        library.lookupFunction<Void Function(Uint32), void Function(int)>(
+        library.lookupFunction<Void Function(), void Function()>(
             'NativeViewCoreEnsureInitialized');
-    nativeViewCoreUpdateLayeredColor =
-        library.lookupFunction<Void Function(Uint32), void Function(int)>(
-            'NativeViewCoreUpdateLayeredColor');
     nativeViewCoreCreateNativeView = library.lookupFunction<
         Void Function(Uint32, Uint32, Uint32, Uint32, Uint32, Double),
         void Function(
@@ -49,6 +48,9 @@ abstract class FFI {
     nativeViewCoreDisposeNativeView =
         library.lookupFunction<Void Function(Uint32), void Function(int)>(
             'NativeViewCoreDisposeNativeView');
+    nativeViewCoreSetHitTestBehavior =
+        library.lookupFunction<Void Function(Uint32), void Function(int)>(
+            'NativeViewCoreSetHitTestBehavior');
     nativeViewCoreResizeNativeView = library.lookupFunction<
         Void Function(Uint32, Uint32, Uint32, Uint32, Uint32),
         void Function(

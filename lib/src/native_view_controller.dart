@@ -35,7 +35,22 @@ import 'package:flutter_native_view/src/widgets.dart';
 /// ```
 ///
 /// Pass the `HWND` of the window as [handle].
-/// In above example, we are using [FindWindow] from `package:win32` to discover handle of the `VLC Media Player`'s window.
+/// In above example, we are using `FindWindow` from `package:win32` to discover handle of the `VLC Media Player`'s window.
+///
+///
+/// **Other Notes**
+///
+/// When [NativeView] is no longer in use always make sure to dispose it using [dispose].
+///
+/// ```dart
+/// controller.dispose();
+/// ```
+///
+/// The [NativeView] can be explicitly re-drawn using [refresh].
+///
+/// ```dart
+/// controller.refresh();
+/// ```
 ///
 class NativeViewController {
   final int handle;
@@ -47,7 +62,12 @@ class NativeViewController {
       StreamController<void>();
   late final StreamSubscription<void> resizeNativeViewStreamSubscription;
 
-  NativeViewController({required this.handle}) {
+  HitTestBehavior hitTestBehavior;
+
+  NativeViewController({
+    required this.handle,
+    this.hitTestBehavior = HitTestBehavior.opaque,
+  }) {
     resizeNativeViewStreamSubscription =
         resizeNativeViewStreamController.stream.listen(
       (event) {
@@ -74,8 +94,21 @@ class NativeViewController {
     );
   }
 
+  /// Creates a new [NativeView].
+  ///
+  /// NOTE: [HitTestBehavior.deferToChild] does not work.
+  ///
+  void SetHitTestBehavior(HitTestBehavior value) {
+    hitTestBehavior = value;
+    FFI.nativeViewCoreSetHitTestBehavior(hitTestBehavior.index - 1);
+    rendererKey.currentState!.setState(() {});
+  }
+
   /// Causes [NativeView] associated with this [NativeViewController] to redraw & update its positioning.
-  void refresh() {
+  ///
+  /// TODO: Fix [force] argument.
+  ///
+  void refresh({bool force = true}) {
     FFI.nativeViewCoreResizeNativeView(
       handle,
       (painterKey.rect!.left * window.devicePixelRatio).toInt(),

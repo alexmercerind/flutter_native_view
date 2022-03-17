@@ -17,23 +17,14 @@
 ///
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:flutter_native_view/src/ffi.dart';
 import 'package:flutter_native_view/src/constants.dart';
 
 class FlutterNativeView {
-  static Future<void> ensureInitialized({
-    Color layeredColor = kDefaultLayeredColor,
-  }) async {
+  static Future<void> ensureInitialized() async {
     await const MethodChannel(kMethodChannelName).invokeMethod('');
     FFI.ensureInitialized();
-    FFI.nativeViewCoreEnsureInitialized(layeredColor.value);
-  }
-
-  static void updateLayeredColor({
-    Color layeredColor = kDefaultLayeredColor,
-  }) {
-    FFI.nativeViewCoreUpdateLayeredColor(layeredColor.value);
+    FFI.nativeViewCoreEnsureInitialized();
   }
 }
