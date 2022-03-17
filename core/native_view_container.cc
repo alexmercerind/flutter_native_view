@@ -36,7 +36,12 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
       ::PostQuitMessage(0);
       return 0;
     }
-    case WM_MOUSEHOVER: {
+    case WM_MOUSEMOVE: {
+      TRACKMOUSEEVENT event;
+      event.cbSize = sizeof(event);
+      event.hwndTrack = window;
+      event.dwFlags = TME_HOVER;
+      event.dwHoverTime = 200;
       NativeViewCore::GetInstance()->SetHitTestBehavior(0);
       break;
     }
@@ -97,12 +102,6 @@ HWND GetNativeViewContainer(HWND window) {
   taskbar->Release();
   ::ShowWindow(native_view_container, SW_SHOWNOACTIVATE);
   // TODO: Re-gain focus of |window_| properly once mouse reaches out.
-  TRACKMOUSEEVENT event;
-  event.cbSize = sizeof(event);
-  event.hwndTrack = native_view_container;
-  event.dwFlags = TME_HOVER;
-  event.dwHoverTime = 1;
-  ::_TrackMouseEvent(&event);
   ::SetFocus(window);
   return native_view_container;
 }

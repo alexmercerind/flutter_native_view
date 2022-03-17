@@ -30,6 +30,11 @@ LRESULT NativeViewSubclassProc(HWND window, UINT message, WPARAM wparam,
   switch (message) {
     case WM_MOUSELEAVE: {
       // Gain focus to the |NativeViewCore::window_| again.
+      TRACKMOUSEEVENT event;
+      event.cbSize = sizeof(event);
+      event.hwndTrack = window;
+      event.dwFlags = TME_LEAVE;
+      event.dwHoverTime = 200;
       NativeViewCore::GetInstance()->SetHitTestBehavior(0);
       break;
     }
@@ -40,12 +45,6 @@ LRESULT NativeViewSubclassProc(HWND window, UINT message, WPARAM wparam,
 }
 
 void SetNativeViewSubclassProc(HWND native_view, HWND window) {
-  TRACKMOUSEEVENT event;
-  event.cbSize = sizeof(event);
-  event.hwndTrack = native_view;
-  event.dwFlags = TME_LEAVE;
-  event.dwHoverTime = 1;
-  ::_TrackMouseEvent(&event);
   ::SetWindowSubclass(native_view, NativeViewSubclassProc, 69420, NULL);
 }
 
