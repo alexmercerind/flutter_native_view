@@ -30,3 +30,5 @@ set(flutter_native_view_bundled_libraries
   ""
   PARENT_SCOPE
 )
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4302 /wd4311 /wd4312")
