@@ -74,10 +74,10 @@ HWND CreateNativeViewContainer() {
   window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
   window_class.hbrBackground = ::CreateSolidBrush(0);
   ::RegisterClassExW(&window_class);
-  auto window = ::CreateWindowEx(
-      WS_EX_NOACTIVATE, kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr,
-      nullptr, GetModuleHandle(nullptr), nullptr);
+  auto window =
+      ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
+                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                     nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
   return window;
 }
 
