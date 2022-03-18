@@ -9,6 +9,7 @@ add_library(${PLUGIN_NAME} SHARED
   "../core/ffi_api.cc"
   "../core/native_view_core.cc"
   "../core/native_view_container.cc"
+  "../core/native_view_subclass_proc.cc"
   "flutter_native_view_plugin.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
