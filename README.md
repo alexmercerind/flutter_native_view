@@ -13,6 +13,15 @@ Try running the [example](./example) application by cloning the repository.
 https://user-images.githubusercontent.com/28951144/158442361-6970e676-fa0d-430d-8eee-b3d862b2682c.mp4
 
 
+## Sponsor
+
+You may sponsor this project's future development at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind). It'll be a great motivation for me.
+
+### 💖 Current Sponsors
+
+- [Ahmad Arif Aulia Sutarman](https://github.com/damywise) ● 20$
+
+
 ## Description
 
 A Flutter plugin / C++ library to embed other native Windows (`HWND` on Windows) into Flutter window.
@@ -31,14 +40,6 @@ On the other hand, a window created by the client code itself e.g. a webview ins
 https://github.com/flutter/flutter/issues/31713
 
 Absence of official Platform View APIs in Flutter for Windows, Linux & macOS.
-
-## Sponsor
-
-You may sponsor this project at [Patreon](https://www.patreon.com/harmonoid) or make voluntary donations at [PayPal](https://www.paypal.me/alexmercerind). It'll be a great motivation for me.
-
-### 💖 Current Sponsors
-
-- [Ahmad Arif Aulia Sutarman](https://github.com/damywise) ● 20$
 
 ## Setup
 
@@ -134,6 +135,7 @@ class _MyAppState extends State<MyApp> {
 - Proper disposing of `HWND` and instances.
 - Semi transparent `Widget`s on top of `NativeView`.
 - Customizable hit-test i.e. optional interactability with the `NativeView`s.
+- Placement of `NativeView`s inside scrollables like `ListView`s.
 
 #### Under Progress
 
