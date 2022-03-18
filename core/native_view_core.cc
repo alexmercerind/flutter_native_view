@@ -67,7 +67,7 @@ void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
 }
 
 void NativeViewCore::DisposeNativeView(HWND native_view) {
-  ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+  ::SendMessage(native_view, WM_CLOSE, 0, 0);
   native_views_.erase(native_view);
 }
 
@@ -88,9 +88,9 @@ void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
   // Move the |native_view|, since this happens when the size of the viewport
   // is likely changed, thus redraw is required.
-  ::SetWindowPos(native_view, nullptr, global_rect.left, global_rect.top,
-                 global_rect.right - global_rect.left,
-                 global_rect.bottom - global_rect.top, SWP_NOACTIVATE);
+  ::MoveWindow(native_view, global_rect.left, global_rect.top,
+               global_rect.right - global_rect.left,
+               global_rect.bottom - global_rect.top, TRUE);
 }
 
 std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
@@ -98,21 +98,19 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
                                                   LPARAM lparam) {
   switch (message) {
     case WM_ACTIVATE: {
-      for (const auto& [native_view, rect] : native_views_) {
-        RECT window_rect;
-        ::GetWindowRect(window_, &window_rect);
-        // Position |native_view| such that it's z order is behind |window_|.
-        ::SetWindowPos(native_view_container_, window_, window_rect.left,
-                       window_rect.top, window_rect.right - window_rect.left,
-                       window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
-      }
+      RECT window_rect;
+      ::GetWindowRect(window_, &window_rect);
+      // Position |native_view| such that it's z order is behind |window_| &
+      // redraw aswell.
+      ::SetWindowPos(native_view_container_, window_, window_rect.left,
+                     window_rect.top, window_rect.right - window_rect.left,
+                     window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
       break;
     }
     case WM_SIZE: {
       switch (wparam) {
         case SIZE_MINIMIZED: {
           ::ShowWindow(native_view_container_, SW_MINIMIZE);
-          RedrawNativeViews();
           break;
         }
         case SIZE_RESTORED: {
@@ -120,11 +118,12 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
           break;
         }
         // TODO: Does not look native. Improve message handling in future.
-        case SIZE_MAXIMIZED: {
-          ::ShowWindow(native_view_container_, SW_MAXIMIZE);
-          RedrawNativeViews();
-          break;
-        }
+        // Apparently a window cannot be maximized without stealing the focus in
+        // Win32 API.
+        // case SIZE_MAXIMIZED: {
+        //   ::ShowWindow(native_view_container_, SW_MAXIMIZE);
+        //   break;
+        // }
         default:
           break;
       }
@@ -136,18 +135,16 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       RECT window_rect;
       ::GetWindowRect(window_, &window_rect);
       if (window_rect.right - window_rect.left > 0 &&
-          window_rect.bottom - window_rect.top > 0 && window_rect.right > 0 &&
-          window_rect.top > 0 && window_rect.bottom > 0) {
-        ::SetWindowPos(native_view_container_, window_, window_rect.left,
-                       window_rect.top, window_rect.right - window_rect.left,
-                       window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
-        RedrawNativeViews();
+          window_rect.bottom - window_rect.top > 0) {
+        ::MoveWindow(native_view_container_, window_rect.left, window_rect.top,
+                     window_rect.right - window_rect.left,
+                     window_rect.bottom - window_rect.top, TRUE);
       }
       break;
     }
     case WM_CLOSE: {
       for (const auto& [native_view, rect] : native_views_) {
-        ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+        ::SendMessage(native_view, WM_CLOSE, 0, 0);
       }
       native_views_.clear();
       break;
@@ -159,12 +156,8 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
 }
 
 void NativeViewCore::RedrawNativeViews() {
-  for (const auto& [native_view, rect] : native_views_) {
-    auto global_rect =
-        GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
-    ::RedrawWindow(native_view, 0, 0, RDW_INVALIDATE);
-  }
-  ::RedrawWindow(native_view_container_, 0, 0, RDW_INVALIDATE);
+  ::RedrawWindow(native_view_container_, 0, 0,
+                 RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
@@ -188,7 +181,7 @@ RECT NativeViewCore::GetGlobalRect(int32_t left, int32_t top, int32_t right,
 NativeViewCore::~NativeViewCore() {
   // Destroy existing |native_views_|.
   for (const auto& [native_view, rect] : native_views_) {
-    ::SendMessage(native_view, WM_CLOSE, NULL, NULL);
+    ::SendMessage(native_view, WM_CLOSE, 0, 0);
   }
   native_views_.clear();
 }

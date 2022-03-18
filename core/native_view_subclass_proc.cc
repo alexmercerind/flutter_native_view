@@ -28,15 +28,10 @@ LRESULT NativeViewSubclassProc(HWND window, UINT message, WPARAM wparam,
                                LPARAM lparam, UINT_PTR subclass_id,
                                DWORD_PTR ref_data) noexcept {
   switch (message) {
-    case WM_MOUSELEAVE: {
-      // Gain focus to the |NativeViewCore::window_| again.
-      TRACKMOUSEEVENT event;
-      event.cbSize = sizeof(event);
-      event.hwndTrack = window;
-      event.dwFlags = TME_LEAVE;
-      event.dwHoverTime = 200;
-      NativeViewCore::GetInstance()->SetHitTestBehavior(0);
-      break;
+    case WM_ERASEBKGND: {
+      // Prevent erasing of |window| when it is unfocused and minimized or
+      // moved out of screen etc.
+      return 1;
     }
     default:
       break;

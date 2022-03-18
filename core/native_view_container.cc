@@ -45,6 +45,11 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
       NativeViewCore::GetInstance()->SetHitTestBehavior(0);
       break;
     }
+    case WM_ERASEBKGND: {
+      // Prevent erasing of |window| when it is unfocused and minimized or
+      // moved out of screen etc.
+      return 1;
+    }
     case WM_SIZE:
     case WM_MOVE:
     case WM_MOVING:
@@ -85,7 +90,6 @@ HWND GetNativeViewContainer(HWND window) {
   RECT window_rect;
   ::GetWindowRect(window, &window_rect);
   auto native_view_container = ::FindWindow(kClassName, kWindowName);
-  flutternativeview::SetWindowComposition(native_view_container, 6, 0);
   ::SetWindowPos(native_view_container, window, window_rect.left,
                  window_rect.top, window_rect.right - window_rect.left,
                  window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
@@ -96,7 +100,7 @@ HWND GetNativeViewContainer(HWND window) {
   // |native_view_container|'s |GWL_STYLE| OR |GWL_EX_STYLE| made underlying
   // |HWND| obvious to user.
   ITaskbarList3* taskbar = nullptr;
-  ::CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER,
+  ::CoCreateInstance(CLSID_TaskbarList, 0, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&taskbar));
   taskbar->DeleteTab(native_view_container);
   taskbar->Release();
