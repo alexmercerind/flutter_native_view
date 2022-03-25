@@ -108,15 +108,13 @@ class NativeViewController {
   /// TODO: Fix [force] argument.
   ///
   void refresh({bool force = true}) {
-    if (!entered) {
-      FFI.nativeViewCoreResizeNativeView(
-        handle,
-        (painterKey.rect!.left * window.devicePixelRatio).toInt(),
-        (painterKey.rect!.top * window.devicePixelRatio).toInt(),
-        (painterKey.rect!.right * window.devicePixelRatio).toInt(),
-        (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
-      );
-      rendererKey.currentState!.setState(() {});
-    }
+    FFI.nativeViewCoreResizeNativeView(
+      handle,
+      (painterKey.rect!.left * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.top * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.right * window.devicePixelRatio).toInt(),
+      (painterKey.rect!.bottom * window.devicePixelRatio).toInt(),
+    );
+    rendererKey.currentState!.setState(() {});
   }
 }

@@ -28,6 +28,8 @@ namespace flutternativeview {
 constexpr const auto kClassName = L"FLUTTER_NATIVE_VIEW";
 constexpr const auto kWindowName = L"flutter_native_view";
 
+static HWND native_view_container = nullptr;
+
 LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
                                          WPARAM const wparam,
                                          LPARAM const lparam) noexcept {
@@ -43,6 +45,10 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
       event.dwFlags = TME_HOVER;
       event.dwHoverTime = 200;
       NativeViewCore::GetInstance()->SetHitTestBehavior(0);
+      auto user_data = ::GetWindowLongPtr(window, GWLP_USERDATA);
+      if (user_data) {
+        ::SetForegroundWindow(reinterpret_cast<HWND>(user_data));
+      }
       break;
     }
     case WM_ERASEBKGND: {
@@ -79,17 +85,16 @@ HWND CreateNativeViewContainer() {
   window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
   window_class.hbrBackground = ::CreateSolidBrush(0);
   ::RegisterClassExW(&window_class);
-  auto window =
+  native_view_container =
       ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
                      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                      nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-  return window;
+  return native_view_container;
 }
 
 HWND GetNativeViewContainer(HWND window) {
   RECT window_rect;
   ::GetWindowRect(window, &window_rect);
-  auto native_view_container = ::FindWindow(kClassName, kWindowName);
   ::SetWindowPos(native_view_container, window, window_rect.left,
                  window_rect.top, window_rect.right - window_rect.left,
                  window_rect.bottom - window_rect.top, SWP_NOACTIVATE);

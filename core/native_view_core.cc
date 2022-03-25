@@ -38,11 +38,6 @@ NativeViewCore::NativeViewCore(HWND window, HWND child_window)
 
 void NativeViewCore::EnsureInitialized() {
   flutternativeview::SetWindowComposition(window_, 6, 0);
-  TITLEBARINFOEX title_bar_info;
-  title_bar_info.cbSize = sizeof(TITLEBARINFOEX);
-  ::SendMessage(window_, WM_GETTITLEBARINFOEX, 0, (LPARAM)&title_bar_info);
-  title_bar_height_ =
-      title_bar_info.rcTitleBar.bottom - title_bar_info.rcTitleBar.top;
   native_view_container_ = flutternativeview::GetNativeViewContainer(window_);
 }
 
@@ -83,6 +78,12 @@ void NativeViewCore::SetHitTestBehavior(int32_t hittest_behavior) {
 }
 
 void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
+  if (native_views_[native_view].left == rect.left &&
+      native_views_[native_view].top == rect.top &&
+      native_views_[native_view].right == rect.right &&
+      native_views_[native_view].bottom == rect.bottom) {
+    return;
+  }
   native_views_[native_view] = rect;
   auto global_rect =
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
@@ -136,13 +137,14 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       ::GetWindowRect(window_, &window_rect);
       if (window_rect.right - window_rect.left > 0 &&
           window_rect.bottom - window_rect.top > 0) {
-        ::MoveWindow(native_view_container_, window_rect.left, window_rect.top,
-                     window_rect.right - window_rect.left,
-                     window_rect.bottom - window_rect.top, TRUE);
+        ::SetWindowPos(native_view_container_, window_, window_rect.left,
+                       window_rect.top, window_rect.right - window_rect.left,
+                       window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
       }
       break;
     }
     case WM_CLOSE: {
+      ::SendMessage(native_view_container_, WM_CLOSE, 0, 0);
       for (const auto& [native_view, rect] : native_views_) {
         ::SendMessage(native_view, WM_CLOSE, 0, 0);
       }
