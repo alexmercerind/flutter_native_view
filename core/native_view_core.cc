@@ -78,12 +78,13 @@ void NativeViewCore::SetHitTestBehavior(int32_t hittest_behavior) {
 }
 
 void NativeViewCore::ResizeNativeView(HWND native_view, RECT rect) {
-  if (native_views_[native_view].left == rect.left &&
-      native_views_[native_view].top == rect.top &&
-      native_views_[native_view].right == rect.right &&
-      native_views_[native_view].bottom == rect.bottom) {
-    return;
-  }
+  // TODO: Examine behavior in future.
+  // if (native_views_[native_view].left == rect.left &&
+  //     native_views_[native_view].top == rect.top &&
+  //     native_views_[native_view].right == rect.right &&
+  //     native_views_[native_view].bottom == rect.bottom) {
+  //   return;
+  // }
   native_views_[native_view] = rect;
   auto global_rect =
       GetGlobalRect(rect.left, rect.top, rect.right, rect.bottom);
