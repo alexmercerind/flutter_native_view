@@ -89,6 +89,11 @@ HWND CreateNativeViewContainer() {
       ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
                      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                      nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+  // Disable DWM animations on |native_view_container|.
+  auto disable_window_transitions = TRUE;
+  DwmSetWindowAttribute(native_view_container, DWMWA_TRANSITIONS_FORCEDISABLED,
+                        &disable_window_transitions,
+                        sizeof(disable_window_transitions));
   return native_view_container;
 }
 
@@ -110,7 +115,6 @@ HWND GetNativeViewContainer(HWND window) {
   taskbar->DeleteTab(native_view_container);
   taskbar->Release();
   ::ShowWindow(native_view_container, SW_SHOWNOACTIVATE);
-  // TODO: Re-gain focus of |window_| properly once mouse reaches out.
   ::SetFocus(window);
   return native_view_container;
 }
