@@ -1,5 +1,7 @@
 # [flutter_native_view](https://github.com/alexmercerind/flutter_native_view)
 
+[![GPL](https://img.shields.io/badge/license-GPL-green.svg)](https://github.com/alexmercerind/flutter_native_view/LICENSE) • [![](https://img.shields.io/twitter/follow/alexmercerind)](https://twitter.com/alexmercerind) • [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/alexmercerind) • [![pub package](https://img.shields.io/pub/v/flutter_native_view.svg)](https://pub.dartlang.org/packages/flutter_native_view)
+
 Embedding native windows & components directly into Flutter window.
 
 ## Example
