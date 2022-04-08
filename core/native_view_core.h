@@ -26,6 +26,7 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <thread>
 #include <vector>
 
 #include "native_view_container.h"
@@ -36,6 +37,8 @@ namespace flutternativeview {
 
 class NativeViewCore {
  public:
+  static constexpr auto kNativeViewPositionAndShowDelay = 300;
+
   static NativeViewCore* GetInstance();
 
   static void SetInstance(std::unique_ptr<NativeViewCore> instance);
@@ -71,6 +74,8 @@ class NativeViewCore {
   HWND native_view_container_ = nullptr;
   double device_pixel_ratio_ = 1.0;
   std::map<HWND, RECT> native_views_ = {};
+  uint64_t last_thread_time_ = 0;
+  WPARAM last_wm_size_wparam_ = SIZE_RESTORED;
   static std::unique_ptr<NativeViewCore> instance_;
   static std::optional<int32_t> proc_id_;
 };

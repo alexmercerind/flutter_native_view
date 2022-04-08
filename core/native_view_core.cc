@@ -110,27 +110,46 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       break;
     }
     case WM_SIZE: {
-      switch (wparam) {
-        case SIZE_MINIMIZED: {
-          ::ShowWindow(native_view_container_, SW_MINIMIZE);
-          break;
-        }
-        case SIZE_RESTORED: {
-          ::ShowWindow(native_view_container_, SW_RESTORE);
-          break;
-        }
-        // TODO: Does not look native. Improve message handling in future.
-        // Apparently a window cannot be maximized without stealing the focus in
-        // Win32 API.
-        // case SIZE_MAXIMIZED: {
-        //   ::ShowWindow(native_view_container_, SW_MAXIMIZE);
-        //   break;
-        // }
-        default:
-          break;
+      // Handle Windows's minimize & maximize animations properly.
+      // Since |SetWindowPos| & other Win32 APIs on |native_view_container_|
+      // do not re-produce the same DWM animations like  actual user
+      // interractions on the |window_| do (though both windows are overlapped
+      // tightly but maximize and minimze animations can't be mimiced for the
+      // both of them at the same time), the best solution is to make the
+      // |window_| opaque & hide |native_view_container_| & alter it's position.
+      // After that, finally make |native_view_container_| visible again &
+      // |window_| transparent again. This approach is not perfect, but it's the
+      // best we can do. The minimize & maximize animations on the |window_|
+      // look good with just a slight glitch on the visible native views. In
+      // future, maybe replacing the |NativeView| widget (Flutter-side) with
+      // equivalent window screenshot will result in a totally seamless
+      // experience.
+      if (wparam != SIZE_RESTORED || last_wm_size_wparam_ == SIZE_MINIMIZED ||
+          last_wm_size_wparam_ == SIZE_MAXIMIZED) {
+        SetWindowComposition(window_, 0, 0);
+        ::ShowWindow(native_view_container_, SW_HIDE);
+        last_thread_time_ =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch())
+                .count();
+        // A possibly-failed attempt to avoid race-condition & jitter.
+        std::thread(
+            [=](uint64_t time) {
+              if (time < last_thread_time_) {
+                return;
+              }
+              std::this_thread::sleep_for(
+                  std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
+              SetWindowComposition(window_, 6, 0);
+              ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
+            },
+            last_thread_time_)
+            .detach();
       }
+      last_wm_size_wparam_ = wparam;
       break;
     }
+    // Keep |native_view_container_| behind the |window_|.
     case WM_MOVE:
     case WM_MOVING:
     case WM_WINDOWPOSCHANGED: {
