@@ -24,6 +24,11 @@ It'll be a great motivation for me to continue.
 
 - [Ahmad Arif Aulia Sutarman](https://github.com/damywise) • 20$ • one-time
 
+
+## Used By
+
+- [dart_vlc](https://github.com/alexmercerind/dart_vlc#nativevideo)
+
 ## Description
 
 This setup only uses Win32 APIs & no texture, intermediate buffers or copying of pixel buffers. Thus, it is **very performant**.
