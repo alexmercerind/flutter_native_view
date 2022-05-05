@@ -1,6 +1,6 @@
 name: flutter_native_view
 description: Flutter plugin to embed native windows into Flutter window.
-version: 0.0.1
+version: 0.0.1+1
 homepage: https://github.com/alexmercerind/flutter_native_view.git
 
 environment:

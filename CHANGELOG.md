@@ -1,3 +1,7 @@
+## 0.0.1+1
+
+- Fix: window restore animation.
+
 ## 0.0.1
 
 - Embedding of native windows inside Flutter window.
