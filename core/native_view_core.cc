@@ -110,6 +110,15 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       break;
     }
     case WM_SIZE: {
+      // Keeping the |native_view_container_| hidden when minimizing the app &
+      // showing it again only when the app is restored.
+      if (last_wm_size_wparam_ == SIZE_MINIMIZED) {
+        std::thread([=]() {
+          std::this_thread::sleep_for(
+              std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
+          ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
+        }).detach();
+      }
       // Handle Windows's minimize & maximize animations properly.
       // Since |SetWindowPos| & other Win32 APIs on |native_view_container_|
       // do not re-produce the same DWM animations like  actual user
@@ -141,7 +150,10 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
               std::this_thread::sleep_for(
                   std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
               SetWindowComposition(window_, 6, 0);
-              ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
+              // Handling SIZE_MINIMIZED separately.
+              if (wparam != SIZE_MINIMIZED) {
+                ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
+              }
             },
             last_thread_time_)
             .detach();
