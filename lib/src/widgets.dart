@@ -84,7 +84,7 @@ class _NativeViewState extends State<NativeView>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback(
+    WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         widget.controller.createNativeView();
       },
