@@ -74,7 +74,7 @@ class _NativeViewState extends State<NativeView>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback(
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback(
       (_) {
         widget.controller.createNativeView();
       },
@@ -171,3 +171,5 @@ extension GlobalKeyExtension on GlobalKey {
     }
   }
 }
+
+T? _ambiguate<T>(T? value) => value;
