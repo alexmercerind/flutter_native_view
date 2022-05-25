@@ -68,7 +68,7 @@ Add following lines to your `windows/runner/main.cpp` file:
 ```diff
   window.SetQuitOnClose(true);
 
-+ flutternativeview::CreateNativeViewContainer();
++ flutternativeview::NativeViewContainer::GetInstance()->Create();
 
   ::MSG msg;
   while (::GetMessage(&msg, nullptr, 0, 0)) {
@@ -155,11 +155,12 @@ controller.dispose();
 - Windows 10 & higher support.
 - Proper disposing of `HWND` and instances.
 - Semi transparent `Widget`s on top of `NativeView`.
-- Customizable hit-test i.e. optional interactability with the `NativeView`s.
 - Placement of `NativeView`s inside scrollables like `ListView`s.
+- [UNSTABLE] Customizable hit-test i.e. optional interactability with the `NativeView`s.
 
 #### Under Progress
 
+- Stable support for interactability with the `NativeView`s [maybe switching to programmatic approach].
 - Support for older Windows versions.
 - Defining z-order for each `NativeViewController`.
 - Finalized API.

@@ -27,7 +27,8 @@ NativeViewCore::NativeViewCore(HWND window, HWND child_window)
 
 void NativeViewCore::EnsureInitialized() {
   flutternativeview::SetWindowComposition(window_, 6, 0);
-  native_view_container_ = flutternativeview::GetNativeViewContainer(window_);
+  native_view_container_ =
+      flutternativeview::NativeViewContainer::GetInstance()->Get(window_);
 }
 
 void NativeViewCore::CreateNativeView(HWND native_view, RECT rect,
@@ -101,13 +102,15 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
     case WM_SIZE: {
       // Keeping the |native_view_container_| hidden when minimizing the app &
       // showing it again only when the app is restored.
-      if (last_wm_size_wparam_ == SIZE_MINIMIZED) {
-        std::thread([=]() {
-          std::this_thread::sleep_for(
-              std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
-          ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
-        }).detach();
-      }
+      // ---- INTENTIONALLY COMMENTED OUT ----
+      // if (last_wm_size_wparam_ == SIZE_MINIMIZED) {
+      //   std::thread([=]() {
+      //     std::this_thread::sleep_for(
+      //         std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
+      //     ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
+      //   }).detach();
+      // }
+
       // Handle Windows's minimize & maximize animations properly.
       // Since |SetWindowPos| & other Win32 APIs on |native_view_container_|
       // do not re-produce the same DWM animations like  actual user
