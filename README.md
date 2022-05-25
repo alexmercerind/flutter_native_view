@@ -160,16 +160,10 @@ controller.dispose();
 
 #### Under Progress
 
-- Finalized API.
-- General stability.
-- Better maximize/minimize animations.
 - Support for older Windows versions.
 - Defining z-order for each `NativeViewController`.
-
-## Known Issues
-
-- Windows snapping layouts & window snapping (only when a `NativeView` is visible on screen).
-- `HitTestBehavior.translucent` leaks through the title-bar.
+- Finalized API.
+- General stability.
 
 ## Motivation
 
@@ -191,6 +185,6 @@ I plan to add Linux support soon. For now, limiting the scope of work to just Wi
 
 Currently licensing strictly.
 
-GNU General Public License v3.0
+MIT License
 
-Copyright (C) 2021, Hitesh Kumar Saini <<saini123hitesh@gmail.com>>
+Copyright (C) 2022, Hitesh Kumar Saini <<saini123hitesh@gmail.com>>
