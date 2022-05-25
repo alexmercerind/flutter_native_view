@@ -8,6 +8,8 @@ Embedding native windows & components directly into Flutter window.
 
 Video showing a Flutter Windows app running with embedded webview & VLC using [flutter_native_view](https://github.com/alexmercerind/flutter_native_view).
 
+Notice how `AppBar` is on-top of the the native surfaces & both native surfaces scroll perfectly.
+
 https://user-images.githubusercontent.com/28951144/159073594-813700fb-0988-424f-86b5-381beccf4247.mp4
 
 _[slight lag & delay can be observed due to screen recording. the actual experience is very seamless]_
