@@ -14,14 +14,58 @@
 
 namespace flutternativeview {
 
-constexpr const auto kClassName = L"FLUTTER_NATIVE_VIEW";
-constexpr const auto kWindowName = L"flutter_native_view";
+NativeViewContainer* NativeViewContainer::GetInstance() {
+  return instance_.get();
+}
 
-static HWND native_view_container = nullptr;
+HWND NativeViewContainer::Create() {
+  auto window_class = WNDCLASSEX{};
+  ::SecureZeroMemory(&window_class, sizeof(window_class));
+  window_class.cbSize = sizeof(window_class);
+  window_class.style = CS_HREDRAW | CS_VREDRAW;
+  window_class.lpfnWndProc = WindowProc;
+  window_class.hInstance = 0;
+  window_class.lpszClassName = kClassName;
+  window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
+  window_class.hbrBackground = ::CreateSolidBrush(0);
+  ::RegisterClassExW(&window_class);
+  handle_ =
+      ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
+                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                     nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+  // Disable DWM animations on |native_view_container|.
+  auto disable_window_transitions = TRUE;
+  DwmSetWindowAttribute(handle_, DWMWA_TRANSITIONS_FORCEDISABLED,
+                        &disable_window_transitions,
+                        sizeof(disable_window_transitions));
+  return handle_;
+}
 
-LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
-                                         WPARAM const wparam,
-                                         LPARAM const lparam) noexcept {
+HWND NativeViewContainer::Get(HWND window) {
+  RECT window_rect;
+  ::GetWindowRect(window, &window_rect);
+  ::SetWindowPos(handle_, window, window_rect.left, window_rect.top,
+                 window_rect.right - window_rect.left,
+                 window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
+  ::SetWindowLongPtr(handle_, GWLP_USERDATA, reinterpret_cast<LONG>(window));
+  // Remove taskbar entry.
+  // Using |ITaskbarList3| available on Windows 7 or higher. Modification to
+  // |native_view_container|'s |GWL_STYLE| OR |GWL_EX_STYLE| made underlying
+  // |HWND| obvious to user.
+  ITaskbarList3* taskbar = nullptr;
+  ::CoCreateInstance(CLSID_TaskbarList, 0, CLSCTX_INPROC_SERVER,
+                     IID_PPV_ARGS(&taskbar));
+  taskbar->DeleteTab(handle_);
+  taskbar->Release();
+  ::ShowWindow(handle_, SW_SHOWNOACTIVATE);
+  ::SetFocus(window);
+  return handle_;
+}
+
+LRESULT CALLBACK NativeViewContainer::WindowProc(HWND const window,
+                                                 UINT const message,
+                                                 WPARAM const wparam,
+                                                 LPARAM const lparam) noexcept {
   switch (message) {
     case WM_DESTROY: {
       ::PostQuitMessage(0);
@@ -63,49 +107,7 @@ LRESULT CALLBACK NativeViewContainerProc(HWND const window, UINT const message,
   return ::DefWindowProc(window, message, wparam, lparam);
 }
 
-HWND CreateNativeViewContainer() {
-  auto window_class = WNDCLASSEX{};
-  ::SecureZeroMemory(&window_class, sizeof(window_class));
-  window_class.cbSize = sizeof(window_class);
-  window_class.style = CS_HREDRAW | CS_VREDRAW;
-  window_class.lpfnWndProc = NativeViewContainerProc;
-  window_class.hInstance = 0;
-  window_class.lpszClassName = kClassName;
-  window_class.hCursor = ::LoadCursorW(nullptr, IDC_ARROW);
-  window_class.hbrBackground = ::CreateSolidBrush(0);
-  ::RegisterClassExW(&window_class);
-  native_view_container =
-      ::CreateWindow(kClassName, kWindowName, WS_OVERLAPPEDWINDOW,
-                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                     nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-  // Disable DWM animations on |native_view_container|.
-  auto disable_window_transitions = TRUE;
-  DwmSetWindowAttribute(native_view_container, DWMWA_TRANSITIONS_FORCEDISABLED,
-                        &disable_window_transitions,
-                        sizeof(disable_window_transitions));
-  return native_view_container;
-}
-
-HWND GetNativeViewContainer(HWND window) {
-  RECT window_rect;
-  ::GetWindowRect(window, &window_rect);
-  ::SetWindowPos(native_view_container, window, window_rect.left,
-                 window_rect.top, window_rect.right - window_rect.left,
-                 window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
-  ::SetWindowLongPtr(native_view_container, GWLP_USERDATA,
-                     reinterpret_cast<LONG>(window));
-  // Remove taskbar entry.
-  // Using |ITaskbarList3| available on Windows 7 or higher. Modification to
-  // |native_view_container|'s |GWL_STYLE| OR |GWL_EX_STYLE| made underlying
-  // |HWND| obvious to user.
-  ITaskbarList3* taskbar = nullptr;
-  ::CoCreateInstance(CLSID_TaskbarList, 0, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARGS(&taskbar));
-  taskbar->DeleteTab(native_view_container);
-  taskbar->Release();
-  ::ShowWindow(native_view_container, SW_SHOWNOACTIVATE);
-  ::SetFocus(window);
-  return native_view_container;
-}
+std::unique_ptr<NativeViewContainer> NativeViewContainer::instance_ =
+    std::make_unique<NativeViewContainer>();
 
 }  // namespace flutternativeview

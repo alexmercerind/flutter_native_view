@@ -68,7 +68,7 @@ Add following lines to your `windows/runner/main.cpp` file:
 ```diff
   window.SetQuitOnClose(true);
 
-+ flutternativeview::CreateNativeViewContainer();
++ flutternativeview::NativeViewContainer::GetInstance()->Create();
 
   ::MSG msg;
   while (::GetMessage(&msg, nullptr, 0, 0)) {
