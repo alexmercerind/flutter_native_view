@@ -51,43 +51,19 @@ class _MyAppState extends State<MyApp> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  NativeView(
-                    controller: controllers[0],
-                    width: 640.0,
-                    height: 480.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: FloatingActionButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.open_in_browser),
-                    ),
-                  ),
-                ],
+              child: NativeView(
+                controller: controllers[0],
+                width: 640.0,
+                height: 480.0,
               ),
             ),
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  NativeView(
-                    controller: controllers[1],
-                    width: 640.0,
-                    height: 480.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: FloatingActionButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.open_in_browser),
-                    ),
-                  )
-                ],
+              child: NativeView(
+                controller: controllers[1],
+                width: 640.0,
+                height: 480.0,
               ),
             ),
           ],
