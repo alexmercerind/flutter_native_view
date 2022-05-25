@@ -1,5 +1,6 @@
 ## 0.0.2
 
+- chore: switch to MIT license.
 - fix: window restore animation after clicking on taskbar icon (@alexmercerind).
 - refactor: plugin initialization (@alexmercerind).
 
