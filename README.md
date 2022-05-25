@@ -1,6 +1,6 @@
 # [flutter_native_view](https://github.com/alexmercerind/flutter_native_view)
 
-[![GPL](https://img.shields.io/badge/license-GPL-green.svg)](https://github.com/alexmercerind/flutter_native_view/LICENSE) • [![](https://img.shields.io/twitter/follow/alexmercerind)](https://twitter.com/alexmercerind) • [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/alexmercerind) • [![pub package](https://img.shields.io/pub/v/flutter_native_view.svg)](https://pub.dartlang.org/packages/flutter_native_view)
+[![](https://img.shields.io/twitter/follow/alexmercerind)](https://twitter.com/alexmercerind) • [![MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/alexmercerind/flutter_native_view/LICENSE) • [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/alexmercerind) • [![pub package](https://img.shields.io/pub/v/flutter_native_view.svg)](https://pub.dartlang.org/packages/flutter_native_view)
 
 Embedding native windows & components directly into Flutter window.
 
@@ -19,6 +19,7 @@ Try running the [example](./example) application by cloning the repository.
 ## Sponsor
 
 You may sponsor this project's future development & research at:
+
 - [GitHub Sponsors](https://github.com/sponsors/alexmercerind) (monthly-recurring)
 - [PayPal](https://www.paypal.me/alexmercerind) (one-time)
 
@@ -27,7 +28,6 @@ It'll be a great motivation for me to continue.
 ### 💖 Current Sponsors
 
 - [Ahmad Arif Aulia Sutarman](https://github.com/damywise) • 20$ • one-time
-
 
 ## Used By
 
@@ -160,16 +160,10 @@ controller.dispose();
 
 #### Under Progress
 
-- Finalized API.
-- General stability.
-- Better maximize/minimize animations.
 - Support for older Windows versions.
 - Defining z-order for each `NativeViewController`.
-
-## Known Issues
-
-- Windows snapping layouts & window snapping (only when a `NativeView` is visible on screen).
-- `HitTestBehavior.translucent` leaks through the title-bar.
+- Finalized API.
+- General stability.
 
 ## Motivation
 
@@ -189,8 +183,6 @@ I plan to add Linux support soon. For now, limiting the scope of work to just Wi
 
 ## License
 
-Currently licensing strictly.
+MIT License
 
-GNU General Public License v3.0
-
-Copyright (C) 2021, Hitesh Kumar Saini <<saini123hitesh@gmail.com>>
+Copyright (C) 2022, Hitesh Kumar Saini <<saini123hitesh@gmail.com>>
