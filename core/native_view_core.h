@@ -65,6 +65,7 @@ class NativeViewCore {
   std::map<HWND, RECT> native_views_ = {};
   uint64_t last_thread_time_ = 0;
   WPARAM last_wm_size_wparam_ = SIZE_RESTORED;
+  bool was_window_hidden_due_to_minimize_ = false;
   static std::unique_ptr<NativeViewCore> instance_;
   static std::optional<int32_t> proc_id_;
 };

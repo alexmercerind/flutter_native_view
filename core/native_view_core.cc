@@ -100,17 +100,6 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       break;
     }
     case WM_SIZE: {
-      // Keeping the |native_view_container_| hidden when minimizing the app &
-      // showing it again only when the app is restored.
-      // ---- INTENTIONALLY COMMENTED OUT ----
-      // if (last_wm_size_wparam_ == SIZE_MINIMIZED) {
-      //   std::thread([=]() {
-      //     std::this_thread::sleep_for(
-      //         std::chrono::milliseconds(kNativeViewPositionAndShowDelay));
-      //     ::ShowWindow(native_view_container_, SW_SHOWNOACTIVATE);
-      //   }).detach();
-      // }
-
       // Handle Windows's minimize & maximize animations properly.
       // Since |SetWindowPos| & other Win32 APIs on |native_view_container_|
       // do not re-produce the same DWM animations like  actual user
@@ -126,14 +115,18 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
       // equivalent window screenshot will result in a totally seamless
       // experience.
       if (wparam != SIZE_RESTORED || last_wm_size_wparam_ == SIZE_MINIMIZED ||
-          last_wm_size_wparam_ == SIZE_MAXIMIZED) {
+          last_wm_size_wparam_ == SIZE_MAXIMIZED ||
+          was_window_hidden_due_to_minimize_) {
+        was_window_hidden_due_to_minimize_ = false;
+        // Minimize condition is handled separately inside |WM_WINDOWPOSCHANGED|
+        // case, since we don't want to cause unnecessary redraws (& show/hide)
+        // when user is resizing the window by dragging the window border.
         SetWindowComposition(window_, 0, 0);
         ::ShowWindow(native_view_container_, SW_HIDE);
         last_thread_time_ =
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch())
                 .count();
-        // A possibly-failed attempt to avoid race-condition & jitter.
         std::thread(
             [=](uint64_t time) {
               if (time < last_thread_time_) {
@@ -164,6 +157,16 @@ std::optional<HRESULT> NativeViewCore::WindowProc(HWND hwnd, UINT message,
         ::SetWindowPos(native_view_container_, window_, window_rect.left,
                        window_rect.top, window_rect.right - window_rect.left,
                        window_rect.bottom - window_rect.top, SWP_NOACTIVATE);
+        // |window_| is minimized.
+        if (window_rect.left < 0 && window_rect.top < 0 &&
+            window_rect.right < 0 && window_rect.bottom < 0) {
+          // Hide |native_view_container_| to prevent showing
+          // |native_view_container_| before |window_| placement
+          // i.e when restoring window after clicking the taskbar icon.
+          SetWindowComposition(window_, 0, 0);
+          ::ShowWindow(native_view_container_, SW_HIDE);
+          was_window_hidden_due_to_minimize_ = true;
+        }
       }
       break;
     }
