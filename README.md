@@ -17,8 +17,8 @@ Try running the [example](./example) application by cloning the repository.
 ## Sponsor
 
 You may sponsor this project's future development & research at:
+- [GitHub Sponsors](https://github.com/sponsors/alexmercerind) (monthly-recurring)
 - [PayPal](https://www.paypal.me/alexmercerind) (one-time)
-- [Patreon](https://www.patreon.com/harmonoid) (monthly-recurring)
 
 It'll be a great motivation for me to continue.
 
