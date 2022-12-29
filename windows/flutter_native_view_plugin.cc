@@ -65,23 +65,35 @@ FlutterNativeViewPlugin::~FlutterNativeViewPlugin() {}
 void FlutterNativeViewPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (flutternativeview::NativeViewCore::GetProcId()) {
-    registrar_->UnregisterTopLevelWindowProcDelegate(
-        flutternativeview::NativeViewCore::GetProcId().value());
-    flutternativeview::NativeViewCore::SetProcId(std::nullopt);
+  if (method_call.method_name() == "init") {
+    if (flutternativeview::NativeViewCore::GetProcId()) {
+      registrar_->UnregisterTopLevelWindowProcDelegate(
+          flutternativeview::NativeViewCore::GetProcId().value());
+      flutternativeview::NativeViewCore::SetProcId(std::nullopt);
+    }
+    flutternativeview::NativeViewCore::SetInstance(
+        std::move(std::make_unique<flutternativeview::NativeViewCore>(
+            GetWindow(), GetChildWindow())));
+    if (!flutternativeview::NativeViewCore::GetProcId()) {
+      flutternativeview::NativeViewCore::SetProcId(
+          registrar_->RegisterTopLevelWindowProcDelegate(
+              [=](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+                return flutternativeview::NativeViewCore::GetInstance()
+                    ->WindowProc(hwnd, message, wparam, lparam);
+              }));
+    }
+    result->Success(flutter::EncodableValue(nullptr));
+  } else if (method_call.method_name() == "setFullScreen") {
+    const flutter::EncodableMap& args =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    bool isFullScreen =
+        std::get<bool>(args.at(flutter::EncodableValue("isFullScreen")));
+    flutternativeview::NativeViewContainer::GetInstance()->SetFullScreen(
+        isFullScreen);
+    result->Success(flutter::EncodableValue(nullptr));
+  } else {
+    result->NotImplemented();
   }
-  flutternativeview::NativeViewCore::SetInstance(
-      std::move(std::make_unique<flutternativeview::NativeViewCore>(
-          GetWindow(), GetChildWindow())));
-  if (!flutternativeview::NativeViewCore::GetProcId()) {
-    flutternativeview::NativeViewCore::SetProcId(
-        registrar_->RegisterTopLevelWindowProcDelegate(
-            [=](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
-              return flutternativeview::NativeViewCore::GetInstance()
-                  ->WindowProc(hwnd, message, wparam, lparam);
-            }));
-  }
-  result->Success(flutter::EncodableValue(nullptr));
 }
 
 }  // namespace
