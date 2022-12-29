@@ -38,6 +38,10 @@ class NativeViewContainer {
   // |window| is stored on |NativeViewContainer|'s window as |GWLP_USERDATA|.
   DLLEXPORT HWND NativeViewContainer::Get(HWND window);
 
+  // Adds/removes window decorations from the |NativeViewContainer| for use in
+  // full screen mode.
+  DLLEXPORT void SetFullScreen(bool full_screen);
+
  private:
   static std::unique_ptr<NativeViewContainer> NativeViewContainer::instance_;
   static constexpr auto kClassName = L"FLUTTER_NATIVE_VIEW";

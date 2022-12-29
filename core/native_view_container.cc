@@ -62,6 +62,19 @@ HWND NativeViewContainer::Get(HWND window) {
   return handle_;
 }
 
+void NativeViewContainer::SetFullScreen(bool full_screen) {
+  if (full_screen) {
+    SetWindowLongPtr(
+        handle_, GWL_STYLE,
+        GetWindowLong(handle_, GWL_STYLE) & ~(WS_CAPTION | WS_THICKFRAME));
+
+  } else {
+    SetWindowLongPtr(
+        handle_, GWL_STYLE,
+        GetWindowLong(handle_, GWL_STYLE) | WS_CAPTION | WS_THICKFRAME);
+  }
+}
+
 LRESULT CALLBACK NativeViewContainer::WindowProc(HWND const window,
                                                  UINT const message,
                                                  WPARAM const wparam,

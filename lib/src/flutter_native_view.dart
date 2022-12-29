@@ -8,10 +8,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_view/src/ffi.dart';
 import 'package:flutter_native_view/src/constants.dart';
 
+const _channel = MethodChannel(kMethodChannelName);
+
 class FlutterNativeView {
   static Future<void> ensureInitialized() async {
-    await const MethodChannel(kMethodChannelName).invokeMethod('');
+    await _channel.invokeMethod('init');
     FFI.ensureInitialized();
     FFI.nativeViewCoreEnsureInitialized();
+  }
+
+  static Future<void> setFullScreen(bool isFullScreen) async {
+    await _channel
+        .invokeMethod('setFullScreen', {'isFullScreen': isFullScreen});
   }
 }
